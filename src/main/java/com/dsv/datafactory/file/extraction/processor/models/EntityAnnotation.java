@@ -1,49 +1,25 @@
 package com.dsv.datafactory.file.extraction.processor.models;
 
+import lombok.*;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class EntityAnnotation {
+
+    // Może warto dodać Optional do zmiennych?
+    // private Optional<String> locale = Optional.empty();
+    // dużo boiler code'u ale mamy zabezpieczenie przed null'ami?
     private String locale;
     private String description;
     private double confidence;
     private BoundingPoly boundingPoly;
 
-    public EntityAnnotation(){}
-
-    public EntityAnnotation(String locale, String description, double confidence, BoundingPoly boundingPoly){
-        this.locale = locale;
-        this.description = description;
-        this.confidence = confidence;
-        this.boundingPoly = boundingPoly;
-    }
-
+    // Rozważyć czy warto to dodać oraz jaki zakres???
     public void setConfidence(double confidence) {
+        if (confidence < 0.0 || confidence > 1.0) {
+            throw new IllegalArgumentException("Confidence must be between 0.0 and 1.0");
+        }
         this.confidence = confidence;
-    }
-
-    public void setBoundingPoly(BoundingPoly boundingPoly) {
-        this.boundingPoly = boundingPoly;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setLocale(String locale) {
-        this.locale = locale;
-    }
-
-    public double getConfidence() {
-        return confidence;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public String getLocale() {
-        return locale;
-    }
-
-    public BoundingPoly getBoundingPoly() {
-        return boundingPoly;
     }
 }

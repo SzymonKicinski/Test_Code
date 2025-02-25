@@ -10,7 +10,47 @@ import com.google.inject.Singleton;
 import static com.dsv.datafactory.file.extraction.processor.util.ConfigurationLoader.getOrDefault;
 import static com.dsv.datafactory.file.extraction.processor.util.ConfigurationLoader.getOrFail;
 
+// #TODO Poprawiłem część na szybko ale
+// użycie stałych dla kluczy konfiguracyjnych
+// Walidacja wartości konfiguracyjnych
+// Użycie Enum dla typów
+// Zastosowanie loggera
+// Refaktoryzacja metody provideConfig: Można rozważyć
+// podzielenie metody provideConfig na mniejsze metody, aby poprawić czytelność i ułatwić testowanie.
+// Użycie Optional dla wartości konfiguracyjnych
+// Poprawa literówki: W linii, gdzie ustawiasz
+// kakfaPollIntervalMs, jest literówka. Powinno być kafkaPollIntervalMs.
+//
+// + może warto pewne stałe wynieśc do jakiegoś .properties? Stałe strinig rzadko są zmieniane. (warto również rozważyć
+// wartości. Co jak będą zmieniane, albo będą inne one dla różnych środowisk wtedy moze lepiej @Profile z String'a?
+
+
+// #TODO - rozważyć użycie Springa do tego?
 public class ConfigModule implements Module {
+
+	// Stałe dla kluczy konfiguracyjnych
+	private static final String KAFKA_CLIENT_ID = "KAFKA_CLIENT_ID";
+	private static final String KAFKA_GROUP_ID = "KAFKA_GROUP_ID";
+	private static final String ENABLE_KAFKA_SSL = "ENABLE_KAFKA_SSL";
+	private static final String ENABLE_KAFKA_RBAC = "ENABLE_KAFKA_RBAC";
+	private static final String RUN_GV_PARALLEL = "RUN_GV_PARALLEL";
+	private static final String IMAGE_EXTRACTION_METADATA_TOPIC = "IMAGE_EXTRACTION_METADATA_TOPIC";
+	private static final String GOOGLE_APPLICATION_CREDENTIALS = "GOOGLE_APPLICATION_CREDENTIALS";
+	private static final String GOODNESS_OF_FIT = "GOODNESS_OF_FIT";
+	private static final String START_CLASSES = "START_CLASSES";
+	private static final String EXTRACTED_DOCUMENTS_TOPIC = "EXTRACTED_DOCUMENTS_TOPIC";
+	private static final String JENKS_URI = "JENKS_URI";
+	private static final String KAFKA_COMMIT_INTERVAL_MS = "KAFKA_COMMIT_INTERVAL_MS";
+	private static final String KAFKA_POLL_INTERVAL_MS = "KAFKA_POLL_INTERVAL_MS";
+	private static final String REQUEST_TIMEOUT_MS_CONFIG = "REQUEST_TIMEOUT_MS_CONFIG";
+	private static final String KAFKA_AUTO_OFFSET_RESET = "KAFKA_AUTO_OFFSET_RESET";
+	private static final String KAFKA_BOOTSTRAP_SERVERS = "KAFKA_BOOTSTRAP_SERVERS";
+	private static final String KAFKA_MAX_REQUEST_SIZE = "KAFKA_MAX_REQUEST_SIZE";
+	private static final String KAFKA_TRUSTSTORE_PATH = "KAFKA_TRUSTSTORE_PATH";
+	private static final String KAFKA_TRUSTSTORE_FILE = "KAFKA_TRUSTSTORE_FILE";
+	private static final String KAFKA_TRUSTSTORE_PASSWORD = "KAFKA_TRUSTSTORE_PASSWORD";
+	private static final String KAFKA_SSL_PROTOCOL = "KAFKA_SSL_PROTOCOL";
+	private static final String KAFKA_SSL_CIPHER_SUITE = "KAFKA_SSL_CIPHER_SUITE";
 
 	@Override
 	public void configure(Binder binder) {
@@ -21,38 +61,41 @@ public class ConfigModule implements Module {
 	public Config provideConfig() {
 		Config config = new Config();
 
-		config.kafkaClientId = getOrFail("KAFKA_CLIENT_ID");
-		config.kafkaGroupId = getOrFail("KAFKA_GROUP_ID");
-		config.enableKafkaSSL = getOrDefault("ENABLE_KAFKA_SSL","true");
-		config.enableRBAC = getOrDefault("ENABLE_KAFKA_RBAC","false");
-		config.runGVInPararell = getOrDefault("RUN_GV_PARALLEL","false");
+		config.setKafkaClientId(getOrFail(KAFKA_CLIENT_ID));
+		config.setKafkaGroupId(getOrFail(KAFKA_GROUP_ID));
+		config.setEnableKafkaSSL(getOrDefault(ENABLE_KAFKA_SSL, "true"));
+		config.setEnableRBAC(getOrDefault(ENABLE_KAFKA_RBAC, "false"));
+		config.setRunGVInParallel(getOrDefault(RUN_GV_PARALLEL, "false"));
 
-		config.imageExtractionMetadataTopic = getOrFail("IMAGE_EXTRACTION_METADATA_TOPIC");
+		config.setImageExtractionMetadataTopic(getOrFail(IMAGE_EXTRACTION_METADATA_TOPIC));
+		config.setGoogleCredPath(getOrDefault(GOOGLE_APPLICATION_CREDENTIALS, "credentials/google-cred.json"));
+		config.setGoodnessOfFit(getOrDefault(GOODNESS_OF_FIT, "0.999"));
+		config.setStartNumberOfClasses(getOrDefault(START_CLASSES, ""));
 
-		config.googleCredPath = getOrDefault("GOOGLE_APPLICATION_CREDENTIALS","credentials/google-cred.json");
-		config.goodnessOfFit = getOrDefault("GOODNESS_OF_FIT","0.999");
-		config.startNumberOfClasses = getOrDefault("START_CLASSES","");
+		config.setExtractedDocumentTopic(getOrFail(EXTRACTED_DOCUMENTS_TOPIC));
+		config.setLineServiceUrl(getOrDefault(JENKS_URI, "http://aif-jenks:8005/jenks/clustering"));
 
-		config.extractedDocumentTopic = getOrFail("EXTRACTED_DOCUMENTS_TOPIC");
-		config.lineServiceUrl = getOrDefault("JENKS_URI","http://aif-jenks:8005/jenks/clustering");
-		config.kafkaCommitIntervalMs = Integer.parseInt(getOrDefault("KAFKA_COMMIT_INTERVAL_MS", "200"));
-		config.kakfaPollIntervalMs = Integer.parseInt(getOrDefault("KAFKA_POLL_INTERVAL_MS", "1800000"));
-		config.kafkaRequestTimeoutMs = Integer.parseInt(getOrDefault("REQUEST_TIMEOUT_MS_CONFIG", "60000"));
-		config.kafkaAutoOffsetReset = getOrDefault("KAFKA_AUTO_OFFSET_RESET", "latest");
+		config.setKafkaCommitIntervalMs(Integer.parseInt(getOrDefault(KAFKA_COMMIT_INTERVAL_MS, "200")));
+		config.setKafkaPollIntervalMs(Integer.parseInt(getOrDefault(KAFKA_POLL_INTERVAL_MS, "1800000")));
+		config.setKafkaRequestTimeoutMs(Integer.parseInt(getOrDefault(REQUEST_TIMEOUT_MS_CONFIG, "60000")));
+		config.setKafkaAutoOffsetReset(getOrDefault(KAFKA_AUTO_OFFSET_RESET, "latest"));
 
-		config.feature = Feature.newBuilder().setType(Feature.Type.DOCUMENT_TEXT_DETECTION).build();
+		config.setFeature(Feature.newBuilder().setType(Feature.Type.DOCUMENT_TEXT_DETECTION).build());
 
-		config.kafkaBootstrapServers = getOrDefault("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092");
+		config.setKafkaBootstrapServers(getOrDefault(KAFKA_BOOTSTRAP_SERVERS, "localhost:9092"));
+		config.setKafkaMaxRequestSize(getOrDefault(KAFKA_MAX_REQUEST_SIZE, "104857600"));
 
-		config.kafkaMaxRequestSize = getOrDefault("KAFKA_MAX_REQUEST_SIZE", "104857600");
+		config.setKafkaTruststorePath(getOrDefault(KAFKA_TRUSTSTORE_PATH, ""));
+		config.setKafkaTruststoreFile(getOrDefault(KAFKA_TRUSTSTORE_FILE, ""));
+		config.setKafkaTruststorePassword(getOrDefault(KAFKA_TRUSTSTORE_PASSWORD, "", true));
+		config.setKafkaSSLProtocol(getOrDefault(KAFKA_SSL_PROTOCOL, "TLSv1.3,TLSv1.2"));
+		config.setKafkaSSLCipher(getOrDefault(KAFKA_SSL_CIPHER_SUITE, "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"));
 
-		config.kafkaTruststorePath = getOrDefault("KAFKA_TRUSTSTORE_PATH", "");
-		config.kafkaTruststoreFile = getOrDefault("KAFKA_TRUSTSTORE_FILE", "");
-		config.kafkaTruststorePassword = getOrDefault("KAFKA_TRUSTSTORE_PASSWORD", "", true);
-		config.kafkaSLLProtocol = getOrDefault("KAFKA_SSL_PROTOCOL", "TLSv1.3,TLSv1.2");
-		config.kafkaSSLCipher = getOrDefault("KAFKA_SSL_CIPHER_SUITE", "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA");
-
-
+		// #TODO Dodanie DLT w kafce? jaka przewodnia architektura kafki? Fire&forget,Idempotence, mix?
+		// #TODO użyłbym takiej składni
+		// 		properties.put(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE); //see also delivery.timeout.ms
+		//			Configi z Kafka ustawiałbym w osobnej klasie tak by nie mieszać konfiguracjy kolejki z
+		//			konfiguracją dostępów czy też aplikacji
 		return config;
 	}
 }

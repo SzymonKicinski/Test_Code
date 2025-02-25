@@ -25,7 +25,7 @@ public class ParsingTest {
     @BeforeAll
     void setup(){
         Config config = new Config();
-        config.runGVInPararell = "false";
+        config.RunGVInParallel = "false";
         GoogleOcrP refacOcr = new GoogleOcrP(config);
     }
     @Test

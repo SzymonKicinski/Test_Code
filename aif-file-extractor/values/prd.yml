@@ -1,3 +1,5 @@
+# Version 1.0 - 22.02.2025 by X #TODO maybe add some versioning to the file to have more control of it in future?
+# to all of yml files would be good to have it?
 ---
 pipelinedata:
   namespace: customs-prd
@@ -12,14 +14,14 @@ kafkaClientId: aif-file-extractor
 kafkaGroupId: aif-file-extractor
 
 kafkaBootstrapServers: pkc-lq8gm.westeurope.azure.confluent.cloud:9092
-
+# Po co zakomenotwana wartość poniżej? To be deleted - skoro skrypt jest per środowisko to utrzymajmy tak konfiguracje.
 #kafkaBootstrapServers: hcpprdcpkafka1.hcp.dsv.com:19001,hcpprdcpkafka2.hcp.dsv.com:19001,hcpprdcpkafka3.hcp.dsv.com:19001,hcpprdcpkafka4.hcp.dsv.com:19001
 
 # Security - kafka
 kafkaTruststoreFile: confluent.jks
-enableKafkaSSL: 'false'
-enableKafkaRBAC: 'false'
-enableKafkaCloud: "true"
+enableKafkaSSL: false #TODO maybe changing the values from "false" to native false in yaml file?
+enableKafkaRBAC: false #TODO maybe changing the values from "false" to native false in yaml file?
+enableKafkaCloud: true #TODO maybe changing the values from "true" to native false in yaml file?
 kafkaStorePwKey: confluent_storepass
 
 imageExtractionMetadataTopic: aif.customs.fct.extracted-image

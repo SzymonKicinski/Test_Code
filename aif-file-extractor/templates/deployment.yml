@@ -103,7 +103,7 @@ spec:
             - name: KAFKA_COMMIT_INTERVAL_MS
               value: {{ .Values.kafkaCommitIntervalMs | quote }}
             - name: KAFKA_POLL_INTERVAL_MS
-              value: {{ .Values.kakfaPollIntervalMs | quote }}
+              value: {{ .Values.kafkaPollIntervalMs | quote }}
             - name: KAFKA_AUTO_OFFSET_RESET
               value: {{ .Values.kafkaAutoOffsetReset }}
             - name: KAFKA_BOOTSTRAP_SERVERS

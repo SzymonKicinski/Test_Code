@@ -3,7 +3,6 @@ package com.dsv.datafactory.file.extraction;
 import com.dsv.datafactory.model.*;
 import com.dsv.datafactory.model.Word;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.cloud.vision.v1.*;
@@ -37,18 +36,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+// assert???? brak w testach
+// given-when-the
+// no usages zmienne
 
-@Disabled // disabled due to referencing unusable test_folder directory
+@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class LineExtractionTest {
-    private Path basePath = Paths.get("src", "test", "resources", "images");
+    private Path basePath = Paths.get("src", "test", "resources", "images_TO_DELETE_IF_EMPTY");
 
     private static final Logger logger = Logger.getLogger(GVisionTest.class.getName());
-    String lineServiceUrl = "http://localhost:8005/jenks/clustering";
     String startNumberOfClasses = "10";
     String goodnessOfFit = "0.999";
     String test_folder = "H:\\training_data_google\\pipelineTest\\";
 
+    // lepsza nazwa testu?
     @Test
     void testLineExtraction() throws IOException {
 
@@ -107,31 +109,23 @@ public class LineExtractionTest {
                     page.setLanguage(languages);
 
                     for (int j = 0; j < textPlusCoordinates.size(); j++) {
+                        EntityAnnotation textPlusCoordinate = textPlusCoordinates.get(j);
+                        float confidence = textPlusCoordinate.getScore();
+                        String description = textPlusCoordinate.getDescription();
+                        BoundingPoly bounding = textPlusCoordinate.getBoundingPoly();
 
-                        if (j == 0) {
-                            continue;
+                        Vertex topLeft = bounding.getVertices(0);
+//                            Vertex topRight = bounding.getVertices(1); // ?? Możę kolejny test?
+                        Vertex lowRight = bounding.getVertices(2);
+//                            Vertex lowLeft = bounding.getVertices(3); // ? Może kolejny test do tego?
 
-                        } else {
-
-                            EntityAnnotation textPlusCoordinate = textPlusCoordinates.get(j);
-                            float confidence = textPlusCoordinate.getScore();
-                            String description = textPlusCoordinate.getDescription();
-                            BoundingPoly bounding = textPlusCoordinate.getBoundingPoly();
-
-                            Vertex topLeft = bounding.getVertices(0);
-//                            Vertex topRight = bounding.getVertices(1);
-                            Vertex lowRight = bounding.getVertices(2);
-//                            Vertex lowLeft = bounding.getVertices(3);
-
-                            com.dsv.datafactory.model.Word word = new com.dsv.datafactory.model.Word();
-                            word.setWord(description);
-                            word.setTopLeftCorner(new Vertices(topLeft.getX(), topLeft.getY()));
-                            word.setLowRightCorner(new Vertices(lowRight.getX(), lowRight.getY()));
-                            word.setyMean((int) (topLeft.getY() + lowRight.getY()) / 2);
-                            word.setxMean((int) (topLeft.getX() + lowRight.getX()) / 2);
-                            line.addWord(word);
-                        }
-
+                        com.dsv.datafactory.model.Word word = new com.dsv.datafactory.model.Word();
+                        word.setWord(description);
+                        word.setTopLeftCorner(new Vertices(topLeft.getX(), topLeft.getY()));
+                        word.setLowRightCorner(new Vertices(lowRight.getX(), lowRight.getY()));
+                        word.setyMean((int) (topLeft.getY() + lowRight.getY()) / 2);
+                        word.setxMean((int) (topLeft.getX() + lowRight.getX()) / 2);
+                        line.addWord(word);
                     }
 
                     if (visionResponse == null || !visionResponse.hasFullTextAnnotation()) {
@@ -159,62 +153,61 @@ public class LineExtractionTest {
                 }
             }
         }
-
-
         document.setPages(pages);
-       generateInputFromDocument(document);
+        generateInputFromDocument(document);
         ObjectMapper mapper = new ObjectMapper();
         mapper.writeValue(new File(Paths.get(basePath.toString(), document.getKey() + ".json").toString()), document);
         String jsonString = mapper.writeValueAsString(document);
         System.out.println(jsonString);
+        // assert????
     }
 
-    public void generateInputFromDocument(Document document) throws IOException, JsonProcessingException {
-        try{
-            for (com.dsv.datafactory.model.Page page:document.getPages()){
+    public void generateInputFromDocument(Document document) {
+        try {
+            for (com.dsv.datafactory.model.Page page : document.getPages()) {
                 JsonObject requestValue = new JsonObject();
                 List<BoundingBox> wordBoxes = page.getLines().get(0).getWords().stream().map(Word::getBoundingBox).collect(Collectors.toList());
 
                 List<String> strBoxes = new ArrayList<String>();
-                for(BoundingBox box : wordBoxes){
+                for (BoundingBox box : wordBoxes) {
                     strBoxes.add(box.serialize());
                 }
 
                 JsonArray values = JsonParser.parseString(strBoxes.toString()).getAsJsonArray();
-                startNumberOfClasses = String.valueOf(Math.round(2* Math.log(values.size())));
-                requestValue.add("values",values);
-                requestValue.addProperty( "start_num_of_class",startNumberOfClasses);
-                requestValue.addProperty("min_goodness_of_fit",goodnessOfFit);
+                startNumberOfClasses = String.valueOf(Math.round(2 * Math.log(values.size())));
+                requestValue.add("values", values);
+                requestValue.addProperty("start_num_of_class", startNumberOfClasses);
+                requestValue.addProperty("min_goodness_of_fit", goodnessOfFit);
                 requestValue.addProperty("type", "customs");
                 String results = submitRequest(requestValue.toString());
-                parseResults(results,page);
-                //System.out.println(results);
+                parseResults(results, page);
             }
-        }catch(Exception e){
-            logger.log(Level.SEVERE,e.getMessage());
-        }}
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage());
+        }
+    }
 
-    public void parseResults(String results, com.dsv.datafactory.model.Page originalPage){
+    public void parseResults(String results, com.dsv.datafactory.model.Page originalPage) {
         List<Line> newLines = new ArrayList<>();
-        int originalNumWords =  originalPage.getLines().get(0).getWords().size();
+        int originalNumWords = originalPage.getLines().get(0).getWords().size();
         JenksResponse jenks = deserializeResponse(results);
-        for (Cluster clust : jenks.getValues()){
+        for (Cluster clust : jenks.getValues()) {
             int lineNumber = clust.getLineNumber();
             List<Integer> meansForLine = clust.getYMeans();
             Line newLine = new Line();
-            List<Word> newWords = originalPage.getLines().get(0).getWords().stream().filter(x->meansForLine.stream().anyMatch(i -> i.equals(x.getyMean()))).collect(Collectors.toList());
+            List<Word> newWords = originalPage.getLines().get(0).getWords().stream().filter(x -> meansForLine.stream().anyMatch(i -> i.equals(x.getyMean()))).collect(Collectors.toList());
             newLine.setLineNumber(lineNumber);
             newLine.setWords(newWords);
             newLines.add(newLine);
         }
-        if (!newLines.isEmpty() && originalNumWords == newLines.stream().map(Line::getWords).mapToLong(List::size).sum()){
+        if (!newLines.isEmpty() && originalNumWords == newLines.stream().map(Line::getWords).mapToLong(List::size).sum()) {
             originalPage.setLines(newLines);
-        }}
+        }
+    }
 
     String submitRequest(String jsonRequest) throws IOException {
 
         CloseableHttpClient httpClient = HttpClients.custom().build();
-        //HttpPost post = new HttpPost(lineServiceUrl);
         HttpPost post = new HttpPost("http://localhost:8892/jenks/clustering");
         StringBody json = new StringBody(jsonRequest, ContentType.APPLICATION_JSON);
 
@@ -229,31 +222,24 @@ public class LineExtractionTest {
         String responseBody = null;
         try {
             response = httpClient.execute(post);
-//            StatusLine status = response.getStatusLine();
             responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 
-        }
-        catch (Exception e){
-            logger.log(Level.SEVERE,e.getMessage());
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage());
         }
         return responseBody;
     }
 
     JenksResponse deserializeResponse(String jsonResponse) {
-        byte [] data = jsonResponse.getBytes(StandardCharsets.UTF_8);
+        byte[] data = jsonResponse.getBytes(StandardCharsets.UTF_8);
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         JenksResponse jenks = null;
-        try{
+        try {
             jenks = mapper.readValue(data, JenksResponse.class);
-        }
-        catch (Exception e){
-            logger.log(Level.SEVERE,e.getMessage());
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage());
         }
         return jenks;
     }
-
 }
-
-
-

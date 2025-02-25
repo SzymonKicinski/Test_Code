@@ -25,14 +25,14 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled //For now disabled for build do to external file reference
+// given-when-then było by na plus+
+@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class MetaDataTest {
     private ExtractContent extractContent;
     private ExtractLines extractLines;
     private String testCases = "C:\\Users\\Kaden.Behan\\OneDrive - DSV\\Desktop\\test_cases_file_extractor\\";
-    private String imagePath = "src/test/resources/images/";
-    private ArrayList<String> test_blank2 = new ArrayList<>(Arrays.asList(imagePath+"test_blank0.png"));
+    private String imagePath = "src/test/resources/images/"; // może po zakończonym teście warto usuwać folder tworzony tylko na potrzeby testów??
     private ArrayList<String> produced_more_words_jenks = new ArrayList<>(Arrays.asList(imagePath+"39_COM_INV_rotated_20.jpg",imagePath+"39_COM_INV_rotated_21.jpg"));
 
     private ArrayList<String> known_issue_grouping = new ArrayList<>(Arrays.asList(imagePath+"2267-1 & 2 CIPL_10.jpg"));
@@ -52,9 +52,9 @@ public class MetaDataTest {
             @Override protected void configure() {
                 Config config = new Config();
                 bind(Config.class).toInstance(config);
-                config.lineServiceUrl = "http://localhost:8005/jenks/clustering";
-                config.goodnessOfFit = ".999";
-                config.runGVInPararell= "false";
+                config.setLineServiceUrl("http://localhost:8005/jenks/clustering");
+                config.setGoodnessOfFit(".999");
+                config.setRunGVInParallel("false");
                 ExtractLines extractLines = new ExtractLines(config);
                 bind(ExtractLines.class).toInstance(extractLines);
             }
@@ -181,7 +181,7 @@ public class MetaDataTest {
         uploadedFile.sortedImagePaths = known_issue_grouping;
         MetaData metaData = extractContent.execute(uploadedFile);
         Document document = loadFromDisk(metaData.extractedOCRDocumentPath);
-
+        // assert????
     }
 
     @Test
@@ -193,7 +193,7 @@ public class MetaDataTest {
         uploadedFile.sortedImagePaths = produced_more_words_jenks;
         MetaData metaData = extractContent.execute(uploadedFile);
         Document document = loadFromDisk(metaData.extractedOCRDocumentPath);
-
+        // assert????
     }
 
     Page generateTestPage(int numLines,int numWords){

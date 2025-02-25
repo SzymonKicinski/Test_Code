@@ -15,56 +15,57 @@ import org.bytedeco.tesseract.TessBaseAPI;
 import java.util.concurrent.CountDownLatch;
 
 public class App {
+    public static volatile CountDownLatch latch = new CountDownLatch(1);
+    private static final ECSLogger logger = ECSLoggerProvider.getLogger(App.class.getName());
 
-	public static volatile CountDownLatch latch = new CountDownLatch(1);
+    public static void main(String[] args) {
+        App app = new App();
+        app.start();
+    }
 
-	private static final ECSLogger logger = ECSLoggerProvider.getLogger(App.class.getName());
+    private void start() {
+        PackageLoggersConfig.configure();
 
-	public static void main(String[] args) {
+        Module modules = Modules.combine(new ConfigModule(), new StreamModule());
+        Injector injector = Guice.createInjector(modules);
 
-		App app = new App();
-		app.start();
-	}
+        KafkaStreams streams = injector.getInstance(KafkaStreams.class);
 
+        if (streams == null) {
+            logger.error("KafkaStreams instance is null. Exiting...");
+            return;
+        }
 
-	private void start()
-	{
+        addShutdownHook(streams);
 
-		Module modules = Modules.combine(new ConfigModule(), new StreamModule());
-		Injector injector = Guice.createInjector(modules);
+        try {
+            streams.start();
+            latch.await();
+            shutdown(injector);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            logger.error("Unexpected interruption", e);
+        }
+    }
 
-		KafkaStreams streams = injector.getInstance(KafkaStreams.class);
-		addShutdownHook(streams);
+    private void addShutdownHook(KafkaStreams stream) {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            stream.close();
+            latch.countDown();
+        }, "streams-shutdown-hook"));
+    }
 
-		PackageLoggersConfig.configure();
+    private void shutdown(Injector injector) {
+        logger.info("Shutting down remaining resources.");
 
-
-		try {
-
-			streams.start();
-			App.latch.await();
-			shutdown(injector);
-
-		}
-		catch (InterruptedException e) {
-			e.printStackTrace();
-			logger.error("Unexpected error", e);
-		}
-
-	}
-
-	private void addShutdownHook(KafkaStreams stream) {
-		Runtime.getRuntime().addShutdownHook(new Thread("streams-shutdown-hook") {
-			@Override
-			public void run() {
-				stream.close();
-				latch.countDown();
-			}
-		});
-	}
-
-	private void shutdown(Injector injector) {
-		logger.info("Shutting down remaining resources.");
-	}
-
+        try {
+            TessBaseAPI tess = injector.getInstance(TessBaseAPI.class);
+            if (tess != null) {
+                tess.close();
+                logger.info("Tesseract API closed.");
+            }
+        } catch (Exception e) {
+            logger.warn("Error while shutting down Tesseract API.", e);
+        }
+    }
 }

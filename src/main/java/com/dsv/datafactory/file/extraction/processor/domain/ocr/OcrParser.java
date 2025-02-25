@@ -1,23 +1,35 @@
 package com.dsv.datafactory.file.extraction.processor.domain.ocr;
 
+import com.dsv.datafactory.file.extraction.processor.domain.ocr.parsers.Parsers;
 import com.dsv.datafactory.file.extraction.processor.models.*;
 import com.dsv.datafactory.file.extraction.processor.models.BoundingPoly;
 import com.dsv.datafactory.file.extraction.processor.models.EntityAnnotation;
 import com.dsv.datafactory.file.extraction.processor.models.TextAnnotation;
-import com.dsv.datafactory.model.Vertices;
 import com.google.cloud.vision.v1.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+
+// Dodanie springa
+// Dodanie try-resources-catch
+// Dodanie Optional
+// Zastanowienie się czy podejście pisania Orchestrator do COR'ów jest dobrą myślą?
+// Jeśli Orchestrator były by wykorzystywane tylko przez OCR to ograniczyć do nich dostęp innych klas do nich?
+// Może użycie Lista zamiast ArrayList? -> Większa elastyczność w przyszłości
+// Zastosowanie streamów
+// Wydorębienie parserów do innej klasy -> Możliwa przyszłościowa rozbudowa parserów o inne
+// Może wynieść klasę pietro wyżej do innego package by było wiadomo, jakie jest zadanie klasy
 public class OcrParser {
-    AnnotateImageResponse raw;
+    private final AnnotateImageResponse raw;
 
-    public OcrParser(AnnotateImageResponse response){
+    // @Autowired
+    public OcrParser(AnnotateImageResponse response) {
         this.raw = response;
     }
 
-    public GoogleVisionResponse parse(){
+    public GoogleVisionResponse parse() {
         GoogleVisionResponse parsed = new GoogleVisionResponse();
         parsed.setTextAnnotations(parseTextAnnotations(raw.getTextAnnotationsList()));
         parsed.setFullTextAnnotation(parseFullTextAnnotation(raw.getFullTextAnnotation()));
@@ -25,134 +37,128 @@ public class OcrParser {
         return parsed;
     }
 
-    public ArrayList<EntityAnnotation> parseTextAnnotations(List<com.google.cloud.vision.v1.EntityAnnotation> rawTextAnnotations){
-        ArrayList<EntityAnnotation> parsedEntities = new ArrayList<>();
-
-        for(com.google.cloud.vision.v1.EntityAnnotation rawEntity: rawTextAnnotations){
-            parsedEntities.add(parseEntityAnnotation(rawEntity));
-        }
-        return parsedEntities;
+    public ArrayList<EntityAnnotation> parseTextAnnotations(List<com.google.cloud.vision.v1.EntityAnnotation> rawTextAnnotations) {
+        return rawTextAnnotations.stream()
+                .map(this::parseEntityAnnotation)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public EntityAnnotation parseEntityAnnotation(com.google.cloud.vision.v1.EntityAnnotation rawEntity){
+    public EntityAnnotation parseEntityAnnotation(com.google.cloud.vision.v1.EntityAnnotation rawEntity) {
         BoundingPoly parsedPoly = parseBoundingPoly(rawEntity.getBoundingPoly());
         return new EntityAnnotation(rawEntity.getLocale(), rawEntity.getDescription(), rawEntity.getConfidence(), parsedPoly);
     }
 
-    public BoundingPoly parseBoundingPoly(com.google.cloud.vision.v1.BoundingPoly rawBoundingPoly){
-        BoundingPoly parsedPoly = new BoundingPoly();
-        ArrayList<Vertices> vertices = new ArrayList<>();
-        ArrayList<NormalizedVertices> normVertices = new ArrayList<>();
-
-        for(Vertex rawVertex : rawBoundingPoly.getVerticesList() ){
-            vertices.add(new Vertices(rawVertex.getX(), rawVertex.getY()));
-        }
-        for(NormalizedVertex rawVertex : rawBoundingPoly.getNormalizedVerticesList() ){
-            normVertices.add(new NormalizedVertices(rawVertex.getX(), rawVertex.getY()));
-        }
-        parsedPoly.setVertices(vertices);
-        parsedPoly.setNormalizedVertices(normVertices);
-
-        return parsedPoly;
-    }
-
-    public TextAnnotation parseFullTextAnnotation(com.google.cloud.vision.v1.TextAnnotation fullTextAnnotation){
+    public TextAnnotation parseFullTextAnnotation(com.google.cloud.vision.v1.TextAnnotation fullTextAnnotation) {
         TextAnnotation parsedTextAnnotation = new TextAnnotation();
         parsedTextAnnotation.setText(fullTextAnnotation.getText());
         parsedTextAnnotation.setPages(parsePages(fullTextAnnotation.getPagesList()));
-
         return parsedTextAnnotation;
     }
 
-    public ArrayList<GooglePage> parsePages(List<Page> rawPages){
-        ArrayList<GooglePage> parsedPages = new ArrayList<>();
-
-        for(Page rawPage : rawPages){
-            GooglePage parsed = new GooglePage();
-            parsed.setConfidence(rawPage.getConfidence());
-            parsed.setHeight(rawPage.getHeight());
-            parsed.setWidth(rawPage.getWidth());
-            parsed.setBlocks(parseBlocks(rawPage.getBlocksList()));
-            parsed.setTextProperty(parseTextProperty(rawPage.getProperty()));
-
-            parsedPages.add(parsed);
-        }
-
-        return parsedPages;
+    public ArrayList<GooglePage> parsePages(List<Page> rawPages) {
+        return rawPages.stream()
+                .map(this::parsePage)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public TextProperty parseTextProperty(com.google.cloud.vision.v1.TextAnnotation.TextProperty rawTextProperty){
-        TextProperty property = new TextProperty();
-        ArrayList<DetectedLanguage> detectedLanguages= new ArrayList<>();
-        com.google.cloud.vision.v1.TextAnnotation.DetectedBreak rawBreak = rawTextProperty.getDetectedBreak();
-        DetectedBreak detectedBreak = new DetectedBreak(rawBreak.getType().name(), rawBreak.getTypeValue(), rawBreak.getIsPrefix());
-        property.setDetectedBreak(detectedBreak);
-        for(com.google.cloud.vision.v1.TextAnnotation.DetectedLanguage rawDL: rawTextProperty.getDetectedLanguagesList() ){
-            detectedLanguages.add(new DetectedLanguage(rawDL.getConfidence(), rawDL.getLanguageCode()));
-        }
-        property.setDetectedLanguages(detectedLanguages);
+    private GooglePage parsePage(Page rawPage) {
+        GooglePage parsed = new GooglePage();
+        parsed.setConfidence(rawPage.getConfidence());
+        parsed.setHeight(rawPage.getHeight());
+        parsed.setWidth(rawPage.getWidth());
+        parsed.setBlocks(parseBlocks(rawPage.getBlocksList()));
+        parsed.setTextProperty(parseTextProperty(rawPage.getProperty()));
+        return parsed;
+    }
 
+    public BoundingPoly parseBoundingPoly(com.google.cloud.vision.v1.BoundingPoly rawBoundingPoly) {
+        BoundingPoly parsedPoly = new BoundingPoly(); // Potencjalny NullPointerException -
+                                                     // Brak konstruktora w modelu - używamy domyślnego z Javy
+        ArrayList<Vertices> vertices = rawBoundingPoly.getVerticesList().stream()
+                .map(rawVertex -> new Vertices(rawVertex.getX(), rawVertex.getY()))
+                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<NormalizedVertices> normVertices = rawBoundingPoly.getNormalizedVerticesList().stream()
+                .map(rawVertex -> new NormalizedVertices(rawVertex.getX(), rawVertex.getY()))
+                .collect(Collectors.toCollection(ArrayList::new));
+        parsedPoly.setVertices(vertices);
+        parsedPoly.setNormalizedVertices(normVertices);
+        return parsedPoly;
+    }
+
+    public TextProperty parseTextProperty(com.google.cloud.vision.v1.TextAnnotation.TextProperty rawTextProperty) {
+        TextProperty property = new TextProperty();
+        DetectedBreak detectedBreak = new DetectedBreak(
+                rawTextProperty.getDetectedBreak().getType().name(),
+                rawTextProperty.getDetectedBreak().getTypeValue(),
+                rawTextProperty.getDetectedBreak().getIsPrefix()
+        );
+        property.setDetectedBreak(detectedBreak);
+        ArrayList<DetectedLanguage> detectedLanguages = rawTextProperty.getDetectedLanguagesList().stream()
+                .map(rawDL -> new DetectedLanguage(rawDL.getConfidence(), rawDL.getLanguageCode()))
+                .collect(Collectors.toCollection(ArrayList::new));
+        property.setDetectedLanguages(detectedLanguages);
         return property;
     }
 
-
-    public ArrayList<GoogleBlock> parseBlocks(List<Block> rawBlocks){
-        ArrayList<GoogleBlock> blocks = new ArrayList<>();
-        for(Block rawBlock : rawBlocks){
-            GoogleBlock block = new GoogleBlock();
-            block.setBlockType(rawBlock.getBlockType().name());
-            block.setConfidence(rawBlock.getConfidence());
-            block.setBoundingBox(parseBoundingPoly(rawBlock.getBoundingBox()));
-            block.setProperty(parseTextProperty(rawBlock.getProperty()));
-            block.setParagraphs(parseParagraphs(rawBlock.getParagraphsList()));
-
-            blocks.add(block);
-        }
-
-        return blocks;
+    public ArrayList<GoogleBlock> parseBlocks(List<Block> rawBlocks) {
+        return rawBlocks.stream()
+                .map(this::parseBlock)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public ArrayList<GoogleParagraph> parseParagraphs(List<Paragraph> rawParagraphs){
-        ArrayList<GoogleParagraph> paragraphs = new ArrayList<>();
-        for(Paragraph rawParagraph : rawParagraphs){
-            GoogleParagraph paragraph = new GoogleParagraph();
-            paragraph.setBoundingBox(parseBoundingPoly(rawParagraph.getBoundingBox()));
-            paragraph.setConfidence(rawParagraph.getConfidence());
-            paragraph.setProperty(parseTextProperty(rawParagraph.getProperty()));
-            paragraph.setWords(parseWords(rawParagraph.getWordsList()));
-
-            paragraphs.add(paragraph);
-        }
-
-        return paragraphs;
+    private GoogleBlock parseBlock(Block rawBlock) {
+        GoogleBlock block = new GoogleBlock();
+        block.setBlockType(rawBlock.getBlockType().name());
+        block.setConfidence(rawBlock.getConfidence());
+        block.setBoundingBox(parseBoundingPoly(rawBlock.getBoundingBox()));
+        block.setProperty(parseTextProperty(rawBlock.getProperty()));
+        block.setParagraphs(parseParagraphs(rawBlock.getParagraphsList()));
+        return block;
     }
 
-    public ArrayList<GoogleWord> parseWords(List<Word> rawWords){
-        ArrayList<GoogleWord> words = new ArrayList<>();
-        for(Word rawWord : rawWords){
-            GoogleWord word = new GoogleWord();
-            word.setConfidence(rawWord.getConfidence());
-            word.setProperty(parseTextProperty(rawWord.getProperty()));
-            word.setBoundingBox(parseBoundingPoly(rawWord.getBoundingBox()));
-            word.setSymbols(parseSymbols(rawWord.getSymbolsList()));
-
-            words.add(word);
-        }
-        return words;
+    private ArrayList<GoogleParagraph> parseParagraphs(List<Paragraph> rawParagraphs) {
+        return rawParagraphs.stream()
+                .map(this::parseParagraph)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public ArrayList<GoogleSymbol> parseSymbols(List<Symbol> rawSymbols){
-        ArrayList<GoogleSymbol> symbols = new ArrayList<>();
-        for(Symbol rawSymbol : rawSymbols){
-            GoogleSymbol symbol = new GoogleSymbol();
-            symbol.setBoundingBox(parseBoundingPoly(rawSymbol.getBoundingBox()));
-            symbol.setText(rawSymbol.getText());
-            symbol.setConfidence(rawSymbol.getConfidence());
-            symbol.setProperty(parseTextProperty(rawSymbol.getProperty()));
+    private GoogleParagraph parseParagraph(Paragraph rawParagraph) {
+        GoogleParagraph paragraph = new GoogleParagraph();
+        paragraph.setBoundingBox(parseBoundingPoly(rawParagraph.getBoundingBox()));
+        paragraph.setConfidence(rawParagraph.getConfidence());
+        paragraph.setProperty(parseTextProperty(rawParagraph.getProperty()));
+        paragraph.setWords(parseWords(rawParagraph.getWordsList()));
+        return paragraph;
+    }
 
-            symbols.add(symbol);
-        }
-        return symbols;
+    private ArrayList<GoogleWord> parseWords(List<Word> rawWords) {
+        return rawWords.stream()
+                .map(this::parseWord)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private GoogleWord parseWord(Word rawWord) {
+        GoogleWord word = new GoogleWord();
+        word.setConfidence(rawWord.getConfidence());
+        word.setProperty(parseTextProperty(rawWord.getProperty()));
+        word.setBoundingBox(parseBoundingPoly(rawWord.getBoundingBox()));
+        word.setSymbols(parseSymbols(rawWord.getSymbolsList()));
+        return word;
+    }
+
+    public ArrayList<GoogleSymbol> parseSymbols(List<Symbol> rawSymbols) {
+        return rawSymbols.stream()
+                .map(this::parseSymbol)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    private GoogleSymbol parseSymbol(Symbol rawSymbol) {
+        GoogleSymbol symbol = new GoogleSymbol();
+        symbol.setBoundingBox(parseBoundingPoly(rawSymbol.getBoundingBox()));
+        symbol.setText(rawSymbol.getText());
+        symbol.setConfidence(rawSymbol.getConfidence());
+        symbol.setProperty(parseTextProperty(rawSymbol.getProperty()));
+        return symbol;
     }
 
 }

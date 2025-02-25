@@ -1,3 +1,5 @@
+# Version 1.0 - 22.02.2025 by X #TODO maybe add some versioning to the file to have more control of it in future?
+# to all of yml files would be good to have it?
 ---
 # Kafka
 pipelinedata:
@@ -12,27 +14,27 @@ kafkaClientId: aif-file-extractor
 kafkaGroupId: aif-file-extractor
 
 kafkaBootstrapServers: pkc-lq8gm.westeurope.azure.confluent.cloud:9092
-
+# Po co zakomenotwana wartość poniżej? To be deleted - skoro skrypt jest per środowisko to utrzymajmy tak konfiguracje.
 #kafkaBootstrapServers: hcptstcpkafka1.hcp.dsv.com:19001,hcptstcpkafka2.hcp.dsv.com:19001,hcptstcpkafka3.hcp.dsv.com:19001,hcptstcpkafka4.hcp.dsv.com:19001
 ## KAFKA
-enableKafkaSSL: "false"
+enableKafkaSSL: "false" # Bez cudzysłowów?
 imageExtractionMetadataTopic: aif.customs.fct.extracted-image
 extractedDocumentsTopic: aif.customs.fct.extracted-documents
-enableKafkaRBAC: "false"
-enableKafkaCloud: "true"
+enableKafkaRBAC: "false" # Bez cudzysłowów?
+enableKafkaCloud: "true" # Bez cudzysłowów?
 kafkaSecretName: confluent-kafka-secret
 kafkaTruststorePath: /security
 kafkaTruststoreFile: confluent.jks
 kafkaSvcAccount: aif-kafka-sa
 kafkaSvcAccountPw: aif-kafka-sa-pw
 kafkaStorePwKey: confluent_storepass
-claimName: customs-shared-data-pvc
+claimName: customs-shared-data-pvc # Czy w PersistentVolumeClaim faktycznie istnieje w namespace customs-tst, żeby uniknąć błędów.
 
 
 ## Application configs
-goodnessOfFit: ".999"
-startingClasses: "5"
-runGVP: "false"
+goodnessOfFit: ".999" # Bez cudzysłowów?
+startingClasses: "5" # Bez cudzysłowów?
+runGVP: "false" # Bez cudzysłowów?
 
 
 ## APIs
