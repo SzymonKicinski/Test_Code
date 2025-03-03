@@ -20,7 +20,28 @@ import org.apache.kafka.streams.Topology;
 import javax.inject.Singleton;
 import java.util.Properties;
 
+
+// #TODO
+// Refactor configuration code: extract to separate methods
+// Use constants
+// Use Builder pattern
+// Use Enum for protocols: Instead of using strings to define protocols.
+// Validate configuration
+
+// #TODO Split methods so that
+// Configuration and Properties for Consumer and Producer are separate - functions (maybe even in separate classes)
+// #TODO I would consider using Spring for this
+// @EnableKafka
+// @Configuration
+// @RequiredArgsConstructor
+// @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class StreamModule implements Module {
+
+	private static final String KAFKA_PROCESSING_GUARANTEE = "KAFKA_PROCESSING_GUARANTEE";
+	private static final String KAFKA_ISOLATION_LEVEL = "KAFKA_ISOLATION_LEVEL";
+	private static final String ENABLE_KAFKA_CLOUD = "ENABLE_KAFKA_CLOUD";
+	private static final String KAFKA_TRANSACTION_TIMEOUT_MS = "KAFKA_TRANSACTION_TIMEOUT_MS";
+	private static final String MAX_POLL_RECORDS_CONFIG = "MAX_POLL_RECORDS_CONFIG";
 
 	@Override
 	public void configure(Binder binder) {
@@ -31,94 +52,75 @@ public class StreamModule implements Module {
 	public KafkaStreams provideStream(Config config, ExtractionStream extractionStream) {
 		final StreamsBuilder builder = new StreamsBuilder();
 		extractionStream.createFrom(builder);
-
 		final Topology topology = builder.build();
+		Properties props = createKafkaProperties(config);
+		return new KafkaStreams(topology, props);
+	}
 
+	private Properties createKafkaProperties(Config config) {
 		Properties props = new Properties();
+		props.put(StreamsConfig.APPLICATION_ID_CONFIG, config.getKafkaClientId());
+		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, config.getKafkaAutoOffsetReset());
+		props.put(ConsumerConfig.GROUP_ID_CONFIG, config.getKafkaGroupId());
+		props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, config.getKafkaCommitIntervalMs());
+		props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, config.getKafkaBootstrapServers());
+		props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, ConfigurationLoader.getOrDefault(KAFKA_PROCESSING_GUARANTEE, "at_least_once"));
+		props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, config.getKafkaPollIntervalMs());
+		props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, config.getKafkaRequestTimeoutMs());
+		props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, config.getKafkaMaxRequestSize());
+		props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, config.getKafkaMaxRequestSize());
+		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, config.getKafkaMaxRequestSize());
+		props.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, config.getKafkaMaxRequestSize());
+		props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, ConfigurationLoader.getOrDefault(KAFKA_ISOLATION_LEVEL, "read_committed"));
 
-		props.put(StreamsConfig.APPLICATION_ID_CONFIG, config.kafkaClientId);
-		props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, config.kafkaAutoOffsetReset);
-		props.put(ConsumerConfig.GROUP_ID_CONFIG, config.kafkaGroupId);
+		if (isKafkaCloudEnabled()) {
+			configureKafkaCloud(props, config);
+		} else if (config.getEnableKafkaSSL().equals("true")) {
+			configureKafkaSSL(props, config);
+		}
 
-		props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, config.kafkaCommitIntervalMs);
-		props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, config.kafkaBootstrapServers);
-		props.put(StreamsConfig.PROCESSING_GUARANTEE_CONFIG, ConfigurationLoader.getOrDefault("KAFKA_PROCESSING_GUARANTEE", "at_least_once"));
+		return props;
+	}
 
-		props.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, config.kakfaPollIntervalMs);
-		props.put(ConsumerConfig.REQUEST_TIMEOUT_MS_CONFIG, config.kafkaRequestTimeoutMs);
+	private boolean isKafkaCloudEnabled() {
+		return ConfigurationLoader.getOrDefault(ENABLE_KAFKA_CLOUD, "true").equals("true");
+	}
 
-		props.put(ConsumerConfig.FETCH_MAX_BYTES_CONFIG, config.kafkaMaxRequestSize);
-		props.put(ConsumerConfig.MAX_PARTITION_FETCH_BYTES_CONFIG, config.kafkaMaxRequestSize);
-		props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, config.kafkaMaxRequestSize);
-		props.put(ProducerConfig.MAX_REQUEST_SIZE_CONFIG, config.kafkaMaxRequestSize);
-		props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, ConfigurationLoader.getOrDefault("KAFKA_ISOLATION_LEVEL", "read_committed"));
+	private void configureKafkaCloud(Properties props, Config config) {
 
-		if (ConfigurationLoader.getOrDefault("ENABLE_KAFKA_CLOUD", "true").equals("true")) {
+		props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, ConfigurationLoader.getOrDefault(KAFKA_TRANSACTION_TIMEOUT_MS, "600000"));
+		props.put(ConsumerConfig.CLIENT_DNS_LOOKUP_CONFIG, ClientDnsLookup.USE_ALL_DNS_IPS.toString());
+		props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
+		props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
+		props.put(SaslConfigs.SASL_JAAS_CONFIG, String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username='%s' password='%s';",
+				ConfigurationLoader.getOrDefault("KAFKA_RBAC_USER", "", true),
+				ConfigurationLoader.getOrDefault("KAFKA_RBAC_PW", "", true)));
 
-			props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, ConfigurationLoader.getOrDefault("KAFKA_TRANSACTION_TIMEOUT_MS", "600000"));
+// Calling the configureSSL method with the appropriate parameters
+		configureSSL(props, config);
+	}
 
-			// confluent kafka
-			props.put(ConsumerConfig.CLIENT_DNS_LOOKUP_CONFIG, ClientDnsLookup.USE_ALL_DNS_IPS.toString());
-
-			props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
+	private void configureKafkaSSL(Properties props, Config config) {
+		props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, ConfigurationLoader.getOrDefault(KAFKA_TRANSACTION_TIMEOUT_MS, "600000"));
+		props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, ConfigurationLoader.getOrDefault(MAX_POLL_RECORDS_CONFIG, "1"));
+		props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, config.getEnableRBAC().equals("true") ? "SASL_SSL" : "SSL");
+		if (config.getEnableRBAC().equals("true")) {
 			props.put(SaslConfigs.SASL_MECHANISM, "PLAIN");
-			props.put(SaslConfigs.SASL_JAAS_CONFIG, String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username='%s' password='%s';",
+			props.put(SaslConfigs.SASL_JAAS_CONFIG, String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username=\"%s\" password=\"%s\";",
 					ConfigurationLoader.getOrDefault("KAFKA_RBAC_USER", "", true),
 					ConfigurationLoader.getOrDefault("KAFKA_RBAC_PW", "", true)));
-
-			props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, "JKS");
-			props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
-			props.put(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, ConfigurationLoader.getOrDefault("KAFKA_SSL_PROTOCOL", "TLSv1.2"));
-			props.put(SslConfigs.SSL_CIPHER_SUITES_CONFIG, ConfigurationLoader.getOrDefault(
-					"KAFKA_SSL_CIPHER_SUITE",
-					"TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA"));
-
-			props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, ConfigurationLoader.getOrDefault("KAFKA_TRUSTSTORE_PATH", "") + '/' + ConfigurationLoader.getOrDefault("KAFKA_TRUSTSTORE_FILE", ""));
-			props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, ConfigurationLoader.getOrDefault("KAFKA_TRUSTSTORE_PASSWORD", "", true));
-
-			props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, ConfigurationLoader.getOrDefault("KAFKA_TRUSTSTORE_PATH", "") + '/' + ConfigurationLoader.getOrDefault("KAFKA_TRUSTSTORE_FILE", ""));
-			props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, ConfigurationLoader.getOrDefault("KAFKA_TRUSTSTORE_PASSWORD", "", true));
-			return new KafkaStreams(topology, props);
 		}
+		configureSSL(props, config);
+	}
 
-		if (config.enableKafkaSSL.equals("true") && config.enableRBAC.equals("false")) {
-          
-          	props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, ConfigurationLoader.getOrDefault("KAFKA_TRANSACTION_TIMEOUT_MS", "600000"));
-        	props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, ConfigurationLoader.getOrDefault("MAX_POLL_RECORDS_CONFIG", "1"));
-
-			props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
-
-			props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, config.kafkaTruststorePath + '/' + config.kafkaTruststoreFile);
-			props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, config.kafkaTruststorePassword);
-			props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, config.kafkaTruststorePath + '/' + config.kafkaTruststoreFile);
-			props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, config.kafkaTruststorePassword);
-			props.put(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, config.kafkaSLLProtocol);
-			props.put(SslConfigs.SSL_CIPHER_SUITES_CONFIG, config.kafkaSSLCipher);
-			props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
-
-		}
-
-		if (config.enableKafkaSSL.equals("true") && config.enableRBAC.equals("true")){
-          	
-          	props.put(ProducerConfig.TRANSACTION_TIMEOUT_CONFIG, ConfigurationLoader.getOrDefault("KAFKA_TRANSACTION_TIMEOUT_MS", "600000"));
-        	props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, ConfigurationLoader.getOrDefault("MAX_POLL_RECORDS_CONFIG", "1"));
-          
-			props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SASL_SSL");
-			props.put(SaslConfigs.SASL_MECHANISM,"PLAIN");
-			props.put(SaslConfigs.SASL_JAAS_CONFIG, String.format("org.apache.kafka.common.security.plain.PlainLoginModule required username=\"%s\" password=\"%s\";",
-					ConfigurationLoader.getOrDefault("KAFKA_RBAC_USER","",true),
-					ConfigurationLoader.getOrDefault("KAFKA_RBAC_PW","",true)));
-
-			props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, config.kafkaTruststorePath + '/' + config.kafkaTruststoreFile);
-			props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, config.kafkaTruststorePassword);
-			props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, config.kafkaTruststorePath + '/' + config.kafkaTruststoreFile);
-			props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, config.kafkaTruststorePassword);
-			props.put(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, config.kafkaSLLProtocol);
-			props.put(SslConfigs.SSL_CIPHER_SUITES_CONFIG, config.kafkaSSLCipher);
-			props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
-		}
-		return new KafkaStreams(topology, props);
-
+	private void configureSSL(Properties props, Config config) {
+		props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, config.getKafkaTruststorePath() + '/' + config.getKafkaTruststoreFile());
+		props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, config.getKafkaTruststorePassword());
+		props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, config.getKafkaTruststorePath() + '/' + config.getKafkaTruststoreFile());
+		props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, config.getKafkaTruststorePassword());
+		props.put(SslConfigs.SSL_ENABLED_PROTOCOLS_CONFIG, config.getKafkaSSLProtocol());
+		props.put(SslConfigs.SSL_CIPHER_SUITES_CONFIG, config.getKafkaSSLCipher());
+		props.put(SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG, "");
 	}
 
 }

@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.dsv.datafactory.file.extraction.processor</groupId>
@@ -29,22 +30,38 @@
         </repository>
         <repository>
             <id>dna-maven</id>
-            <!--            <name>DSV Maven Repository</name>-->
             <url>https://artifactory.dsv.com/artifactory/dna-maven-local/</url>
 
-            <!--            <url>https://tst.artifactory.dsv.com/artifactory/maven-tst-local/</url>-->
         </repository>
 
         <repository>
             <id>jai-core</id>
             <url>http://maven.icm.edu.pl/artifactory/repo/</url>
-            <!-- <url>http://maven.geotoolkit.org</url> -->
             <releases>
                 <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
+        </repository>
+        <repository>
+            <id>icm</id>
+            <url>http://maven.icm.edu.pl/artifactory/repo/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+        <repository>
+            <id>java.net</id>
+            <url>https://download.java.net/maven/2/</url>
+        </repository>
+        <repository>
+            <id>jai-repository</id>
+            <url>https://mvnrepository.com/artifact/javax.media/jai-core</url>
         </repository>
     </repositories>
 
@@ -82,11 +99,11 @@
             <scope>provided</scope>
         </dependency>
 
-        <dependency>
+        <!-- <dependency>
             <groupId>com.dsv.logger</groupId>
             <artifactId>ECSLogger</artifactId>
             <version>1.8</version>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -106,11 +123,11 @@
             <version>3.11</version>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>com.dsv.datafactory</groupId>
             <artifactId>aif-common-data-model</artifactId>
             <version>${dsv.aif.cdm.version}</version>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>commons-io</groupId>
@@ -128,7 +145,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>28.0-jre</version>
+            <version>33.3.1-jre</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -259,7 +276,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-vision -->
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-vision</artifactId>
@@ -269,10 +285,9 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>20.0</version>
+            <version>33.3.1-jre</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>

@@ -1,6 +1,5 @@
 package com.dsv.datafactory.file.extraction;
 
-import com.dsv.datafactory.file.extraction.processor.models.*;
 import com.dsv.datafactory.model.Document;
 import com.dsv.datafactory.model.Language;
 import com.dsv.datafactory.model.Line;
@@ -28,33 +27,32 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// Given-when-then
 @Disabled // Disabled due to depending on developer's local files
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class GVisionTest
-{
-    private Path basePath = Paths.get("src", "test", "resources", "images");
+public class GVisionTest {
+    private Path basePath = Paths.get("src", "test", "resources", "images_TO_DELETE_IF_EMPTY");
 
     private static final Logger logger = Logger.getLogger(GVisionTest.class.getName());
 
 
     @Test
-    void testCreateDocument() throws IOException
-    {
+    void testCreateDocument() throws IOException {
 
         Document document = new Document();
         List<com.dsv.datafactory.model.Page> pages = new ArrayList<>();
-
+        // static string
         File dir = new File("C:\\Users\\Peter.S.Larsen\\OneDrive - DSV\\DNA-495-TEST\\invoice_5");
         File[] directoryListing = dir.listFiles();
 
         for (int i = 0; i < directoryListing.length; i++) {
 
             File file = directoryListing[i];
-
+            // For what this if??
             if (file.getName().toLowerCase().endsWith(".pdf")) {
                 document.setKey(file.getName());
             }
-
+            // Maybe separate tests for pdf and png files?
             if (file.getName().toLowerCase().endsWith(".png")) {
                 System.out.println(file.getName());
                 String imgName = file.getName();
@@ -108,9 +106,9 @@ public class GVisionTest
                             BoundingPoly bounding = textPlusCoordinate.getBoundingPoly();
 
                             Vertex topLeft = bounding.getVertices(0);
-//                            Vertex topRight = bounding.getVertices(1);
+// Vertex topRight = bounding.getVertices(1); // Separate test for these parameters
                             Vertex lowRight = bounding.getVertices(2);
-//                            Vertex lowLeft = bounding.getVertices(3);
+// Vertex lowLeft = bounding.getVertices(3); // Separate test for these parameters
 
                             com.dsv.datafactory.model.Word word = new com.dsv.datafactory.model.Word();
                             word.setWord(description);
@@ -127,9 +125,7 @@ public class GVisionTest
                     }
 
                     if (visionResponse.hasError()) {
-                        // Log error
-                        logger.log(
-                                Level.SEVERE, "Error in vision API call: " + visionResponse.getError().getMessage());
+                        logger.log(Level.SEVERE, "Error in vision API call: " + visionResponse.getError().getMessage());
                         return;
                     }
 
@@ -140,31 +136,29 @@ public class GVisionTest
 
 
                 } catch (IOException e) {
-                    // Log error (since IOException cannot be thrown by a Cloud Function)
                     logger.log(Level.SEVERE, "Error detecting text: " + e.getMessage(), e);
                     return;
                 }
             }
         }
 
-
         document.setPages(pages);
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(new File(Paths.get(basePath.toString(),document.getKey()+".json").toString()), document);
+        mapper.writeValue(new File(Paths.get(basePath.toString(), document.getKey() + ".json").toString()), document);
         String jsonString = mapper.writeValueAsString(document);
         System.out.println(jsonString);
+        // asserts where?
     }
 
 
-
+    //given when then?
     @Test
-    void testGetTextFromPng() throws IOException
-    {
+    void testGetTextFromPng() throws IOException {
 
         String folder = "invoice_1";
         List<String> pages = new ArrayList<>();
-
-        File dir = new File("C:\\Users\\Peter.S.Larsen\\OneDrive - DSV\\DNA-495-TEST\\"+ folder);
+        // static string??
+        File dir = new File("C:\\Users\\Peter.S.Larsen\\OneDrive - DSV\\DNA-495-TEST\\" + folder);
         File[] directoryListing = dir.listFiles();
 
         for (int i = 0; i < directoryListing.length; i++) {
@@ -195,7 +189,6 @@ public class GVisionTest
                     pages.add(txt);
 
                 } catch (IOException e) {
-                    // Log error (since IOException cannot be thrown by a Cloud Function)
                     logger.log(Level.SEVERE, "Error detecting text: " + e.getMessage(), e);
                     return;
                 }
@@ -203,25 +196,25 @@ public class GVisionTest
         }
 
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(new File(Paths.get(basePath.toString(),folder+".json").toString()), pages);
+        mapper.writeValue(new File(Paths.get(basePath.toString(), folder + ".json").toString()), pages);
         String jsonString = mapper.writeValueAsString(pages);
         System.out.println(jsonString);
+        //asserts where?
     }
 
     @Test
-    void testBlankPages() throws IOException
-    {
+    void testBlankPages() throws IOException {
 
         Document document = new Document();
         List<com.dsv.datafactory.model.Page> pages = new ArrayList<>();
-
+        // static string??
         File dir = new File("H:\\training_data_google\\DNA-619\\test_imgs\\");
         File[] directoryListing = dir.listFiles();
 
         for (int i = 0; i < directoryListing.length; i++) {
 
             File file = directoryListing[i];
-
+            // for what this if -> do we use psd in this test???
             if (file.getName().toLowerCase().endsWith(".pdf")) {
                 document.setKey(file.getName());
             }
@@ -279,9 +272,9 @@ public class GVisionTest
                                 BoundingPoly bounding = textPlusCoordinate.getBoundingPoly();
 
                                 Vertex topLeft = bounding.getVertices(0);
-                                //                            Vertex topRight = bounding.getVertices(1);
+                                //                            Vertex topRight = bounding.getVertices(1); // ??
                                 Vertex lowRight = bounding.getVertices(2);
-                                //                            Vertex lowLeft = bounding.getVertices(3);
+                                //                            Vertex lowLeft = bounding.getVertices(3); // ??
 
                                 com.dsv.datafactory.model.Word word = new com.dsv.datafactory.model.Word();
                                 word.setWord(description);
@@ -298,47 +291,41 @@ public class GVisionTest
                         }
 
                         if (visionResponse.hasError()) {
-                            // Log error
-                            logger.log(
-                                    Level.SEVERE, "Error in vision API call: " + visionResponse.getError().getMessage());
+                            logger.log(Level.SEVERE, "Error in vision API call: " + visionResponse.getError().getMessage());
                             return;
                         }
 
 
                         lines.add(line);
                         page.setLines(lines);
-                    }catch (IndexOutOfBoundsException e) {
-                        // Log error (since IOException cannot be thrown by a Cloud Function)
+                    } catch (IndexOutOfBoundsException e) {
                         logger.log(Level.WARNING, "Error detecting text, probable blank page: " + e.getMessage(), e);
-
                     }
                     pages.add(page);
 
-
                 } catch (IOException e) {
-                    // Log error (since IOException cannot be thrown by a Cloud Function)
                     logger.log(Level.SEVERE, "Error detecting text: " + e.getMessage(), e);
                     return;
                 }
             }
+            // asserts???
         }
 
 
         document.setPages(pages);
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(new File(Paths.get(basePath.toString(),document.getKey()+".json").toString()), document);
+        mapper.writeValue(new File(Paths.get(basePath.toString(), document.getKey() + ".json").toString()), document);
         String jsonString = mapper.writeValueAsString(document);
         System.out.println(jsonString);
     }
 
     @Test
-    void testGetTextFromPdf() throws IOException
-    {
+    void testGetTextFromPdf() throws IOException {
 
         String folder = "invoice_1";
         List<String> pages = new ArrayList<>();
 
-        File dir = new File("C:\\Users\\Peter.S.Larsen\\OneDrive - DSV\\DNA-495-TEST\\"+ folder);
+        File dir = new File("C:\\Users\\Peter.S.Larsen\\OneDrive - DSV\\DNA-495-TEST\\" + folder);
         File[] directoryListing = dir.listFiles();
 
         for (int i = 0; i < directoryListing.length; i++) {
@@ -356,7 +343,7 @@ public class GVisionTest
 
                 try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
                     Feature feature = Feature.newBuilder().setType(Feature.Type.DOCUMENT_TEXT_DETECTION).build();
-
+                    // Do I need such large blocks of text in my code? Even in tests?
                     // Build the request object for that one file. Note: for additional file you have to create
                     // additional `AnnotateFileRequest` objects and store them in a list to be used below.
                     // Since we are sending a file of type `application/pdf`, we can use the `pages` field to
@@ -391,15 +378,18 @@ public class GVisionTest
         }
 
         ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(new File(Paths.get(basePath.toString(),folder+"_pdf"+".json").toString()), pages);
+        mapper.writeValue(new File(Paths.get(basePath.toString(), folder + "_pdf" + ".json").toString()), pages);
         String jsonString = mapper.writeValueAsString(pages);
         System.out.println(jsonString);
+        // assert
+// given when then?
+// Test Keep it stupid simple - as much as possible
     }
 
-
+    // asserts where???
+    // given when then ??
     @Test
-    void testCompareResults() throws IOException, NoSuchAlgorithmException
-    {
+    void testCompareResults() throws IOException, NoSuchAlgorithmException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         byte[] bytesPNG = Files.readAllBytes(Paths.get(basePath.toString(), "invoice_1.json"));
@@ -411,76 +401,27 @@ public class GVisionTest
         List<String> pagesPNG = objectMapper.readValue(txtPNG, List.class);
         List<String> pagesPDF = objectMapper.readValue(txtPDF, List.class);
 
-        int count = 0;
-
         for (int i = 0; i < pagesPNG.size(); i++) {
-
-
             String png = pagesPNG.get(i);
             String pdf = pagesPDF.get(i);
 
-            String hashPNG = Hashing.sha256().hashBytes(png.getBytes()).toString();
-            String hashPDF = Hashing.sha256().hashBytes(pdf.getBytes()).toString();
+            Set<String> pagePng = new HashSet<>(Arrays.asList(png.split("\n")));
+            Set<String> pagePdf = new HashSet<>(Arrays.asList(pdf.split("\n")));
 
-           Set<String> pagePng = new HashSet<>(Arrays.asList(png.split("\n")));
-           Set<String> pagePdf = new HashSet<>(Arrays.asList(pdf.split("\n")));
+            System.out.println("page " + i);
 
-           System.out.println("page " + i);
-
-           System.out.println("Before ");
-           System.out.println("page size png: " + pagePng.size());
-           System.out.println("page size pdf: " + pagePdf.size());
-
-           System.out.println();
-
-//           pagePdf.retainAll(pagePng);
-//           pagePng.retainAll(pagePdf);
-
-//           pagePng.removeAll(pagePdf);
-           pagePdf.removeAll(pagePng);
-
-//            System.out.println("After");
-//            System.out.println("page size png: " + pagePng.size());
-//            System.out.println("page size pdf: " + pagePdf.size());
-//
-//
-//            System.out.println("page png checksum256: " + hashPNG);
-//            System.out.println("page pdf checksum256: " + hashPDF);
-//
-//
-//            System.out.println();
-
-//            System.out.println("elements in png page not found in pdf page");
-//
-//            for (String s : pagePng) {
-//
-//                System.out.println(s);
-//
-//            }
-//
-//            System.out.println();
-
-            System.out.println("elements in pdf page not found in png page");
-
-            for (String s : pagePdf) {
-
-                System.out.println(s);
-
-            }
-
-
+            System.out.println("Before ");
+            System.out.println("page size png: " + pagePng.size());
+            System.out.println("page size pdf: " + pagePdf.size());
             System.out.println();
 
-
-
+            pagePdf.removeAll(pagePng);
+            System.out.println("elements in pdf page not found in png page");
+            for (String s : pagePdf) {
+                System.out.println(s);
+            }
         }
-
-
-
-
-
     }
-
 }
 
 

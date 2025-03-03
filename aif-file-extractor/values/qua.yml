@@ -1,3 +1,5 @@
+# Version 1.0 - 22.02.2025 by X #TODO maybe add some versioning to the file to have more control of it in future?
+# to all of yml files would be good to have it?
 ---
 pipelinedata:
   namespace: qa  
@@ -5,14 +7,14 @@ pipelinedata:
 # Kafka
 kafkaClientId: aif-file-extractor
 kafkaGroupId: aif-file-extractor
+# Why commented value below? To be deleted - since the script is per environment let's keep the configuration like this.
 #kafkaBootstrapServers: hcpquacpkafka1.hcp.dsv.com:19001,hcpquacpkafka2.hcp.dsv.com:19001,hcpquacpkafka3.hcp.dsv.com:19001,hcpquacpkafka4.hcp.dsv.com:19001
-
 kafkaTruststoreFile: confluent.jks
 kafkaSvcAccount: aif-kafka-sa
 kafkaSvcAccountPw: aif-kafka-sa-pw
-enableKafkaRBAC: 'false'
-enableKafkaSSL: 'false'
-enableKafkaCloud: "true"
+enableKafkaRBAC: 'false' #TODO maybe changing the values from "false" to native false in yaml file?
+enableKafkaSSL: 'false' #TODO maybe changing the values from "false" to native false in yaml file?
+enableKafkaCloud: "true" #TODO maybe changing the values from "false" to native false in yaml file?
 kafkaStorePwKey: confluent_storepass
 
 imageExtractionMetadataTopic: aif.customs.fct.extracted-image
@@ -25,7 +27,7 @@ claimName: customs-shared-data-pvc
 
 goodnessOfFit: ".999"
 startingClasses: "5"
-runGVP: "false"
+runGVP: "false" #TODO maybe changing the values from "false" to native false in yaml file?
 googleSecretName: google-vision-secret
 googleVisionPath: /credentials/
 googleVisionFilePath: /credentials/google-vision-cred.json

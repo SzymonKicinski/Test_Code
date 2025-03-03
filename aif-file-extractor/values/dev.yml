@@ -1,3 +1,5 @@
+# Version 1.0 - 22.02.2025 by X #TODO maybe add some versioning to the file to have more control of it in future?
+# to all of yml files would be good to have it?
 ---
 pipelinedata:
   namespace: customs-dev
@@ -10,9 +12,9 @@ pipelinedata:
 kafkaClientId: aif-file-extractor
 kafkaGroupId: aif-file-extractor
 kafkaBootstrapServers: dev-kafka-data.aifactory.dsv.com:9092
-enableKafkaRBAC: "false"
-enableKafkaSSL: "false"
-enableKafkaCloud: "false"
+enableKafkaRBAC: false #TODO maybe changing the values from "false" to native false in yaml file?
+enableKafkaSSL: false #TODO maybe changing the values from "false" to native false in yaml file?
+enableKafkaCloud: false #TODO maybe changing the values from "false" to native false in yaml file?
 kafkaSecretName: kafka-secret
 kafkaTruststorePath: /security
 kafkaTruststoreFile: aif-file-extractor.jks
@@ -25,7 +27,7 @@ kafkaStorePwKey: password
 replicaCount: 1
 
 runGVP: "false"
-goodnessOfFit: ".999"
+goodnessOfFit: ".999" # #TODO maybe change the name for better understanding what he present?
 startingClasses: "5"
 jenksUri: http://aif-jenks-processor-feature-dna-907-rotations:8005/jenks/clustering
 

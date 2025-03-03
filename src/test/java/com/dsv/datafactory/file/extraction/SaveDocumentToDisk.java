@@ -1,100 +1,121 @@
 package com.dsv.datafactory.file.extraction;
 
-import com.dsv.datafactory.file.extraction.processor.Config;
-import com.dsv.datafactory.file.extraction.processor.domain.ExtractLines;
 import com.dsv.datafactory.file.extraction.processor.domain.ocr.GoogleOcr;
-import com.dsv.datafactory.file.extraction.processor.modules.ConfigModule;
-import com.dsv.datafactory.model.Document;
-import com.dsv.datafactory.model.Page;
+import com.dsv.datafactory.file.extraction.processor.domain.ocr.OcrParser;
+import com.dsv.datafactory.file.extraction.processor.models.GoogleVisionResponse;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Disabled;
+import com.google.cloud.vision.v1.AnnotateImageResponse;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-@Disabled
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.util.Objects;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+// given when the KISS YAGNI SOLID CLEAN CODE
 public class SaveDocumentToDisk {
-    String src = "C:\\_dev_stuff\\data\\pngs\\";
-    String dst = "C:\\_dev_stuff\\test_res\\";
-    GoogleOcr ocr = new GoogleOcr();
-
-
+    private final GoogleOcr googleOcr = new GoogleOcr();
+    private final String imageDir = "src/test/resources/images/SerializationTest/";
+    private final String airDir = "src/test/resources/AnnotateImageResponseObjects/";
+    private final String dstDir = "src/test/resources/SerializedGoogleVisionResponses/";
 
     @Test
-    void get_test() {
-        Config config = new Config();
-        config.lineServiceUrl = "http://localhost:8005/jenks/clustering";
-        config.goodnessOfFit = "0.999";
-        ExtractLines jenks = new ExtractLines(config);
+    void processAnnotateImageResponseAndSaveToDisk() {
+        File[] files = new File(airDir).listFiles();
+        // code in ENG soe the messages in ENG!
+        assertNotNull(files, "Pliki w katalogu " + airDir + " nie istnieją lub nie można ich odczytać");
 
-        File dir = new File(src);
-        String[] paths = dir.list();
-        ArrayList toProcess = new ArrayList();
-        ArrayList<String> mids = new ArrayList<>();
+        for (File image : files) {
+            try {
+                String imagePath = image.getAbsolutePath();
+                String dst = dstDir + image.getName().replace(".object", ".json");
+                AnnotateImageResponse response = loadAnnotateImageResponseFromDisk(imagePath);
+                // code in ENG soe the messages in ENG!
+                assertNotNull(response, "Błąd: response jest null dla " + imagePath);
 
-        for (File req : dir.listFiles()) {
+                GoogleVisionResponse parsed = new OcrParser(response).parse();
+                // code in ENG soe the messages in ENG!
+                assertNotNull(parsed, "Błąd: parsed jest null dla " + imagePath);
 
-            String mid = req.getName().substring(0, 64);
-            if (!mids.contains(mid)) {
-                mids.add(mid);
-            }
-        }
-        for (String mid : mids) {
-            Document toSave = null;
-            toProcess.clear();
-            for (String path : paths) {
-                if (path.contains(mid)) {
-                    toProcess.add(src + path);
-                }
-            }
-            if (notDone(mid)) {
-                try {
-                    toSave = ocr.generateDocument(toProcess, mid);
-                    jenks.generateInputFromDocument(toSave);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    saveDocument(toSave, mid);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                saveDocument(parsed, dst);
+                // code in ENG soe the messages in ENG!
+                assertTrue(new File(dst).exists(), "Plik wynikowy nie został utworzony: " + dst);
+            } catch (Exception e) {
+                // code in ENG soe the messages in ENG!
+                throw new RuntimeException("Błąd podczas przetwarzania pliku: " + image.getName(), e);
             }
         }
     }
 
+    @Test
+    void processImagesAndSaveToDisk() {
+        File[] files = new File(imageDir).listFiles();
+        // code in ENG soe the messages in ENG!
+        assertNotNull(files, "Pliki w katalogu " + imageDir + " nie istnieją lub nie można ich odczytać");
 
+        for (File image : files) {
+            try {
+                String imagePath = image.getAbsolutePath();
+                String dst = dstDir + image.getName().replace(".png", ".json");
+                AnnotateImageResponse response = googleOcr.generateResponse(imagePath);
+                // code in ENG soe the messages in ENG!
+                assertNotNull(response, "Błąd: response jest null dla " + imagePath);
 
-    Boolean notDone(String masterId){
-        File resp =  new File(dst+masterId+".json");
-        return !resp.exists();
+                GoogleVisionResponse parsed = new OcrParser(response).parse();
+                // code in ENG soe the messages in ENG!
+                assertNotNull(parsed, "Błąd: parsed jest null dla " + imagePath);
+
+                saveDocument(parsed, dst);
+                // code in ENG soe the messages in ENG!
+                assertTrue(new File(dst).exists(), "Plik wynikowy nie został utworzony: " + dst);
+            } catch (Exception e) {
+                // code in ENG soe the messages in ENG!
+                throw new RuntimeException("Błąd podczas przetwarzania pliku: " + image.getName(), e);
+            }
+        }
     }
 
-    String serialize(Document doc) {
-        String sDoc = null;
-        ObjectMapper mapper = new ObjectMapper();
+    private String serialize(GoogleVisionResponse doc) {
         try {
-            sDoc = mapper.writeValueAsString(doc);
+            return new ObjectMapper().writeValueAsString(doc);
         } catch (JsonProcessingException e) {
-            e.printStackTrace();
+            // code in ENG soe the messages in ENG!
+            throw new RuntimeException("Błąd podczas serializacji dokumentu", e);
         }
-        return sDoc;
     }
 
-
-    void saveDocument(Document document, String fname) throws IOException {
+    private void saveDocument(GoogleVisionResponse document, String dst) {
         String serialized = serialize(document);
         if (serialized != null) {
-            String fileName = dst + fname+".json";
-            FileOutputStream outputStream = new FileOutputStream(fileName);
-            byte[] strToBytes = serialized.getBytes();
-            outputStream.write(strToBytes);
-
-            outputStream.close();
+            try (FileOutputStream outputStream = new FileOutputStream(dst)) {
+                outputStream.write(serialized.getBytes(StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                // code in ENG soe the messages in ENG!
+                throw new RuntimeException("Błąd zapisu dokumentu do pliku: " + dst, e);
+            }
         }
     }
 
+    private AnnotateImageResponse loadAnnotateImageResponseFromDisk(String objPath) {
+        try (FileInputStream fileInputStream = new FileInputStream(objPath);
+             ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
+            return (AnnotateImageResponse) objectInputStream.readObject();
+        } catch (Exception e) {
+            // code in ENG soe the messages in ENG!
+            throw new RuntimeException("Błąd podczas wczytywania obiektu AnnotateImageResponse z: " + objPath, e);
+        }
+    }
+
+    private GoogleVisionResponse loadGoogleVisionResponseFromDisk(String path) {
+        try (FileInputStream fileInputStream = new FileInputStream(path)) {
+            String sResponse = IOUtils.toString(fileInputStream, StandardCharsets.UTF_8);
+            return new ObjectMapper().readValue(sResponse, GoogleVisionResponse.class);
+        } catch (Exception e) {
+            // code in ENG soe the messages in ENG!
+            throw new RuntimeException("Błąd podczas wczytywania obiektu GoogleVisionResponse z: " + path, e);
+        }
+    }
 }

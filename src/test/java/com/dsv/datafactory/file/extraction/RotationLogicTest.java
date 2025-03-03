@@ -2,6 +2,10 @@ package com.dsv.datafactory.file.extraction;
 import com.dsv.datafactory.file.extraction.processor.Config;
 import com.dsv.datafactory.file.extraction.processor.domain.ocr.GoogleOcr;
 import com.dsv.datafactory.file.extraction.processor.domain.ocr.GoogleOcrP;
+import com.dsv.datafactory.file.extraction.processor.domain.ocr.orchestrator.ImageOrchestrator;
+import com.dsv.datafactory.file.extraction.processor.domain.ocr.orchestrator.LanguageOrchestrator;
+import com.dsv.datafactory.file.extraction.processor.domain.ocr.orchestrator.LineOrchestrator;
+import com.dsv.datafactory.file.extraction.processor.domain.ocr.orchestrator.WordOrchestrator;
 import com.dsv.datafactory.file.extraction.processor.models.GoogleVisionResponse;
 import com.dsv.datafactory.model.*;
 import com.dsv.datafactory.model.Word;
@@ -17,15 +21,19 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+// Assert (yes they are but if they really working?) & Mockito -> to use maybe?
+// Given when then
+// KISS, You ain't gonna used it  -> YAIGNI
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RotationLogicTest {
-    //GoogleOcr refac = new GoogleOcr();
+    //GoogleOcr refac = new GoogleOcr(); // TO BE DELETED if no needed?
     GoogleOcrP refac ;
+    // private static string??
     GoogleVisionResponse ocr270; //= loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/0be2936c091083d30d5ec089e1c26ecd4becfa0a8b511c83febc8c57bc3d2cdc1.json");
     GoogleVisionResponse ocr90; //= loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/4ff6d7edf0d7f06f53cd480a21ccaabaab1ad426fb471898741d8bde05b5f9f84.json");
     GoogleVisionResponse ocr180; //= loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/3b391e3b3fd948c2eed56b20a68ef39178736ca9f5d0c8c5ff025a3a348f22093.json");
     GoogleVisionResponse ocr0;//= loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/00b7ec45d2877c2aedf6d8c07b21a0aa50d62d1a2dcde7531acb68441889f03a0.json");
-
+    LineOrchestrator lineOrchestrator;
 
     public RotationLogicTest() throws IOException {
     }
@@ -33,13 +41,14 @@ public class RotationLogicTest {
     @BeforeEach
     void setup(){
         Config config = new Config();
-        config.runGVInPararell = "false";
+        config.setRunGVInParallel("false");
         refac = new GoogleOcrP(config);
         ocr270 = loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/0be2936c091083d30d5ec089e1c26ecd4becfa0a8b511c83febc8c57bc3d2cdc1.json");
         ocr90 = loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/4ff6d7edf0d7f06f53cd480a21ccaabaab1ad426fb471898741d8bde05b5f9f84.json");
         ocr180 = loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/3b391e3b3fd948c2eed56b20a68ef39178736ca9f5d0c8c5ff025a3a348f22093.json");
         ocr0 = loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/00b7ec45d2877c2aedf6d8c07b21a0aa50d62d1a2dcde7531acb68441889f03a0.json");
-
+        this.imageOrchestrator = new ImageOrchestrator();
+        this.lineOrchestrator = new LineOrchestrator();
     }
 
     @Test
@@ -48,8 +57,8 @@ public class RotationLogicTest {
         EntityAnnotation entity2 = ocr0.getTextAnnotations().get(7);
         BoundingPoly bp1 = getBoundingPoly(entity1);
         BoundingPoly bp2 = getBoundingPoly(entity2);
-        int[] minMaxCoordinates1 = refac.getMinMaxCoordinatesFromVertices(bp1);
-        int[] minMaxCoordinates2 = refac.getMinMaxCoordinatesFromVertices(bp2);
+        int[] minMaxCoordinates1 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp1);
+        int[] minMaxCoordinates2 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp2);
 
         Assertions.assertEquals(minMaxCoordinates1[0], 912);
         Assertions.assertEquals(minMaxCoordinates1[1], 69);
@@ -69,8 +78,8 @@ public class RotationLogicTest {
         BoundingPoly bp3 = getBoundingPoly(entity3);
         BoundingPoly bp4 = getBoundingPoly(entity4);
 
-        int[] minMaxCoordinates3 = refac.getMinMaxCoordinatesFromVertices(bp3);
-        int[] minMaxCoordinates4 = refac.getMinMaxCoordinatesFromVertices(bp4);
+        int[] minMaxCoordinates3 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp3);
+        int[] minMaxCoordinates4 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp4);
 
         Assertions.assertEquals(minMaxCoordinates3[0], 98);
         Assertions.assertEquals(minMaxCoordinates3[1], 46);
@@ -90,8 +99,8 @@ public class RotationLogicTest {
         BoundingPoly bp5 = getBoundingPoly(entity5);
         BoundingPoly bp6 = getBoundingPoly(entity6);
 
-        int[] minMaxCoordinates5 = refac.getMinMaxCoordinatesFromVertices(bp5);
-        int[] minMaxCoordinates6 = refac.getMinMaxCoordinatesFromVertices(bp6);
+        int[] minMaxCoordinates5 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp5);
+        int[] minMaxCoordinates6 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp6);
 
         Assertions.assertEquals(minMaxCoordinates5[0], 1526);
         Assertions.assertEquals(minMaxCoordinates5[1], 2268);
@@ -111,8 +120,8 @@ public class RotationLogicTest {
         BoundingPoly bp7 = getBoundingPoly(entity7);
         BoundingPoly bp8 = getBoundingPoly(entity8);
 
-        int[] minMaxCoordinates7 = refac.getMinMaxCoordinatesFromVertices(bp7);
-        int[] minMaxCoordinates8 = refac.getMinMaxCoordinatesFromVertices(bp8);
+        int[] minMaxCoordinates7 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp7);
+        int[] minMaxCoordinates8 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp8);
 
         Assertions.assertEquals(minMaxCoordinates7[0], 1432);
         Assertions.assertEquals(minMaxCoordinates7[1], 130);
@@ -131,8 +140,8 @@ public class RotationLogicTest {
         EntityAnnotation entity2 = ocr0.getTextAnnotations().get(15);
         BoundingPoly bp1 = getBoundingPoly(entity1);
         BoundingPoly bp2 = getBoundingPoly(entity2);
-        int[] minMaxCoordinates1 = refac.getMinMaxCoordinatesFromVertices(bp1);
-        int[] minMaxCoordinates2 = refac.getMinMaxCoordinatesFromVertices(bp2);
+        int[] minMaxCoordinates1 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp1);
+        int[] minMaxCoordinates2 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp2);
 
         List<Vertices> rawVertice1 = getVertices(getVertices(bp1));
         List<Vertices> rawVertice2 = getVertices(getVertices(bp2));
@@ -162,8 +171,8 @@ public class RotationLogicTest {
         EntityAnnotation entity2 = ocr270.getTextAnnotations().get(10);
         BoundingPoly bp1 = getBoundingPoly(entity1);
         BoundingPoly bp2 = getBoundingPoly(entity2);
-        int[] minMaxCoordinates1 = refac.getMinMaxCoordinatesFromVertices(bp1);
-        int[] minMaxCoordinates2 = refac.getMinMaxCoordinatesFromVertices(bp2);
+        int[] minMaxCoordinates1 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp1);
+        int[] minMaxCoordinates2 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp2);
 
         List<Vertices> rawVertice1 = getVertices(getVertices(bp1));
         List<Vertices> rawVertice2 = getVertices(getVertices(bp2));
@@ -193,8 +202,8 @@ public class RotationLogicTest {
         EntityAnnotation entity2 = ocr180.getTextAnnotations().get(7);
         BoundingPoly bp1 = getBoundingPoly(entity1);
         BoundingPoly bp2 = getBoundingPoly(entity2);
-        int[] minMaxCoordinates1 = refac.getMinMaxCoordinatesFromVertices(bp1);
-        int[] minMaxCoordinates2 = refac.getMinMaxCoordinatesFromVertices(bp2);
+        int[] minMaxCoordinates1 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp1);
+        int[] minMaxCoordinates2 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp2);
 
         List<Vertices> rawVertice1 = getVertices(getVertices(bp1));
         List<Vertices> rawVertice2 = getVertices(getVertices(bp2));
@@ -222,8 +231,8 @@ public class RotationLogicTest {
         EntityAnnotation entity2 = ocr90.getTextAnnotations().get(9);
         BoundingPoly bp1 = getBoundingPoly(entity1);
         BoundingPoly bp2 = getBoundingPoly(entity2);
-        int[] minMaxCoordinates1 = refac.getMinMaxCoordinatesFromVertices(bp1);
-        int[] minMaxCoordinates2 = refac.getMinMaxCoordinatesFromVertices(bp2);
+        int[] minMaxCoordinates1 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp1);
+        int[] minMaxCoordinates2 = lineOrchestrator.getMinMaxCoordinatesFromVertices(bp2);
 
         List<Vertices> rawVertice1 = getVertices(getVertices(bp1));
         List<Vertices> rawVertice2 = getVertices(getVertices(bp2));
@@ -252,10 +261,10 @@ public class RotationLogicTest {
         EntityAnnotation entity2 = ocr0.getTextAnnotations().get(21);
         EntityAnnotation entity3 = ocr0.getTextAnnotations().get(13);
         EntityAnnotation entity4 = ocr0.getTextAnnotations().get(9);
-        Word word1 = refac.generateWord(entity1);
-        Word word2 = refac.generateWord(entity2);
-        Word word3 = refac.generateWord(entity3);
-        Word word4 = refac.generateWord(entity4);
+        Word word1 = lineOrchestrator.generateWord(entity1);
+        Word word2 = lineOrchestrator.generateWord(entity2);
+        Word word3 = lineOrchestrator.generateWord(entity3);
+        Word word4 = lineOrchestrator.generateWord(entity4);
 
         Assertions.assertEquals(word1.getRotation(), 0);
         Assertions.assertEquals(word2.getRotation(), 0);
@@ -269,10 +278,10 @@ public class RotationLogicTest {
         EntityAnnotation entity2 = ocr90.getTextAnnotations().get(11);
         EntityAnnotation entity3 = ocr90.getTextAnnotations().get(35);
         EntityAnnotation entity4 = ocr90.getTextAnnotations().get(24);
-        Word word1 = refac.generateWord(entity1);
-        Word word2 = refac.generateWord(entity2);
-        Word word3 = refac.generateWord(entity3);
-        Word word4 = refac.generateWord(entity4);
+        Word word1 = lineOrchestrator.generateWord(entity1);
+        Word word2 = lineOrchestrator.generateWord(entity2);
+        Word word3 = lineOrchestrator.generateWord(entity3);
+        Word word4 = lineOrchestrator.generateWord(entity4);
 
         Assertions.assertEquals(word1.getRotation(), 90);
         Assertions.assertEquals(word2.getRotation(), 90);
@@ -286,10 +295,10 @@ public class RotationLogicTest {
         EntityAnnotation entity2 = ocr180.getTextAnnotations().get(9);
         EntityAnnotation entity3 = ocr180.getTextAnnotations().get(27);
         EntityAnnotation entity4 = ocr180.getTextAnnotations().get(40);
-        Word word1 = refac.generateWord(entity1);
-        Word word2 = refac.generateWord(entity2);
-        Word word3 = refac.generateWord(entity3);
-        Word word4 = refac.generateWord(entity4);
+        Word word1 = lineOrchestrator.generateWord(entity1);
+        Word word2 = lineOrchestrator.generateWord(entity2);
+        Word word3 = lineOrchestrator.generateWord(entity3);
+        Word word4 = lineOrchestrator.generateWord(entity4);
 
         Assertions.assertEquals(word1.getRotation(), 180);
         Assertions.assertEquals(word2.getRotation(), 180);
@@ -303,10 +312,10 @@ public class RotationLogicTest {
         EntityAnnotation entity2 = ocr270.getTextAnnotations().get(9);
         EntityAnnotation entity3 = ocr270.getTextAnnotations().get(27);
         EntityAnnotation entity4 = ocr270.getTextAnnotations().get(40);
-        Word word1 = refac.generateWord(entity1);
-        Word word2 = refac.generateWord(entity2);
-        Word word3 = refac.generateWord(entity3);
-        Word word4 = refac.generateWord(entity4);
+        Word word1 = lineOrchestrator.generateWord(entity1);
+        Word word2 = lineOrchestrator.generateWord(entity2);
+        Word word3 = lineOrchestrator.generateWord(entity3);
+        Word word4 = lineOrchestrator.generateWord(entity4);
 
         Assertions.assertEquals(word1.getRotation(), 270);
         Assertions.assertEquals(word2.getRotation(), 270);
@@ -519,7 +528,6 @@ public class RotationLogicTest {
 
         if(page.getRotation() != 0) refac.correctPageCoordinates(page);
         return page;
-
     }
 
     GoogleVisionResponse loadGoogleVisionResponse(String path){

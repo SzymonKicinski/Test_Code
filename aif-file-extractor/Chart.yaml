@@ -1,5 +1,7 @@
 ---
 apiVersion: v2
+# lastUpdate: ?
+# author: ?
 type: application
 name: aif-file-extractor
 version: 1.0.1

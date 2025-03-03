@@ -25,16 +25,17 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled //For now disabled for build do to external file reference
+// given-when-then would be a plus+
+@Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class MetaDataTest {
     private ExtractContent extractContent;
     private ExtractLines extractLines;
-    private String testCases = "C:\\Users\\Kaden.Behan\\OneDrive - DSV\\Desktop\\test_cases_file_extractor\\";
-    private String imagePath = "src/test/resources/images/";
-    private ArrayList<String> test_blank2 = new ArrayList<>(Arrays.asList(imagePath+"test_blank0.png"));
+    private static String testCases = "C:\\Users\\Kaden.Behan\\OneDrive - DSV\\Desktop\\test_cases_file_extractor\\";
+    private static String imagePath = "src/test/resources/images/"; // maybe after the test is finished it's worth deleting the folder created for testing purpose after the test is ended??
     private ArrayList<String> produced_more_words_jenks = new ArrayList<>(Arrays.asList(imagePath+"39_COM_INV_rotated_20.jpg",imagePath+"39_COM_INV_rotated_21.jpg"));
 
+    // private static string ???
     private ArrayList<String> known_issue_grouping = new ArrayList<>(Arrays.asList(imagePath+"2267-1 & 2 CIPL_10.jpg"));
     private ArrayList<String> test_blank = new ArrayList<>(Arrays.asList(imagePath+"0f62a47c044152f3ccdcefb7fa33435b76a41254ebac4a9b61e1ec007f68fe3e0.png"));
     private ArrayList<String> newFormat =  new ArrayList<>(Arrays.asList(imagePath+"sample_outputalice_30_pg_300.jpg",imagePath+"sample_outputalice_30_pg_301.jpg",imagePath+"sample_outputalice_30_pg_302.jpg"));
@@ -52,9 +53,9 @@ public class MetaDataTest {
             @Override protected void configure() {
                 Config config = new Config();
                 bind(Config.class).toInstance(config);
-                config.lineServiceUrl = "http://localhost:8005/jenks/clustering";
-                config.goodnessOfFit = ".999";
-                config.runGVInPararell= "false";
+                config.setLineServiceUrl("http://localhost:8005/jenks/clustering");
+                config.setGoodnessOfFit(".999");
+                config.setRunGVInParallel("false");
                 ExtractLines extractLines = new ExtractLines(config);
                 bind(ExtractLines.class).toInstance(extractLines);
             }
@@ -181,7 +182,7 @@ public class MetaDataTest {
         uploadedFile.sortedImagePaths = known_issue_grouping;
         MetaData metaData = extractContent.execute(uploadedFile);
         Document document = loadFromDisk(metaData.extractedOCRDocumentPath);
-
+        // asserts????
     }
 
     @Test
@@ -193,7 +194,7 @@ public class MetaDataTest {
         uploadedFile.sortedImagePaths = produced_more_words_jenks;
         MetaData metaData = extractContent.execute(uploadedFile);
         Document document = loadFromDisk(metaData.extractedOCRDocumentPath);
-
+        // asserts????
     }
 
     Page generateTestPage(int numLines,int numWords){
@@ -233,6 +234,8 @@ public class MetaDataTest {
         return output;
     }
 
+    // everyhwere given when then IMO
+    // Maybe a few small tests instead of one large one?
     @Test
     void testYMeansMatching(){
         ///Test case 1 all words match //
@@ -273,6 +276,8 @@ public class MetaDataTest {
 
     }
 
+    // everyhwere given when then IMO
+    // Maybe a few small tests instead of one large one?
     @Test
     void testWordCountMatching() throws IOException {
         ///Test case 1 num words should be both 100//
@@ -363,6 +368,7 @@ public class MetaDataTest {
     @Disabled
     @Test
     void generateOutput() throws IOException {
+        // private static string???
         ArrayList<String>  pathReg1 = new ArrayList<>(Collections.singletonList("src\\test\\resources\\build_data\\standard\\regression\\comparison_pngs\\0547240.jpg"));
         ArrayList<String>  pathReg2 = new ArrayList<>(Arrays.asList("src\\test\\resources\\build_data\\standard\\regression\\comparison_pngs\\A05BER07D99118B15_01_10.jpg","src\\test\\resources\\build_data\\standard\\regression\\comparison_pngs\\A05BER07D99118B15_01_11.jpg"));
         MetaData uploadedFile1 = new MetaData();
