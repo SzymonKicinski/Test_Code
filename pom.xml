@@ -30,7 +30,6 @@
         </repository>
         <repository>
             <id>dna-maven</id>
-            <!--            <name>DSV Maven Repository</name>-->
             <url>https://artifactory.dsv.com/artifactory/dna-maven-local/</url>
 
         </repository>
@@ -38,7 +37,6 @@
         <repository>
             <id>jai-core</id>
             <url>http://maven.icm.edu.pl/artifactory/repo/</url>
-            <!-- <url>http://maven.geotoolkit.org</url> -->
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -278,7 +276,6 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-vision -->
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-vision</artifactId>
@@ -291,7 +288,6 @@
             <version>33.3.1-jre</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>

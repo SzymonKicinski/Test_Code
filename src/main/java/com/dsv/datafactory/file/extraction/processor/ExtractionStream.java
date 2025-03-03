@@ -11,13 +11,13 @@ import org.apache.kafka.streams.kstream.Produced;
 import org.apache.kafka.streams.kstream.Consumed;
 import org.apache.kafka.streams.KeyValue;
 
-// #TODO dodanie stringa np. Autowirde AllArgsConstructor
+// #TODO adding a string, e.g. Autowirde AllArgsConstructor
 
-// Typy kolekcji: Generyczne na plus +
-//Obsługa błędów:
-//Zastosowanie final: Warto oznaczyć pola klasowe jako final, jeśli nie są one modyfikowane po konstrukcji,
-// co zwiększa bezpieczeństwo i czytelność kodu.
-// #TODO Dodanie Springa + Lombok?
+// Collection types: Generic plus +
+//Error handling:
+//Use of final: It is worth marking class fields as final if they are not modified after construction,
+// which increases code safety and readability.
+// #TODO Adding Spring + Lombok?
 public class ExtractionStream {
 
 	private final Config config;
@@ -34,8 +34,7 @@ public class ExtractionStream {
 				config.getImageExtractionMetadataTopic(),
 				Consumed.with(Serdes.String(), new MetaDataSerde())
 		);
-
-		// #TODO -> try & catch - to może było by lepsze?
+		// #TODO -> try & catch - maybe this would be better?
 		KStream<String, MetaData> documentExtractions = stream.mapValues(extractDocument::execute);
 		KStream<String, MetaData> documentExtractionsFiltered = documentExtractions.filter((k, v) -> v != null);
 
@@ -44,7 +43,7 @@ public class ExtractionStream {
 				log.error("Null value for key: " + key);
 			}
 		});
-
+		// some throws in this ExtractedDocumentTopic??
 		documentExtractionsFiltered.to(config.getExtractedDocumentTopic(), Produced.with(Serdes.String(), new MetaDataSerde()));
 	}
 }

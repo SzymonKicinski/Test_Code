@@ -21,10 +21,14 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+// Assert (yes they are but if they really working?) & Mockito -> to use maybe?
+// Given when then
+// KISS, You ain't gonna used it  -> YAIGNI
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class RotationLogicTest {
-    //GoogleOcr refac = new GoogleOcr();
+    //GoogleOcr refac = new GoogleOcr(); // TO BE DELETED if no needed?
     GoogleOcrP refac ;
+    // private static string??
     GoogleVisionResponse ocr270; //= loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/0be2936c091083d30d5ec089e1c26ecd4becfa0a8b511c83febc8c57bc3d2cdc1.json");
     GoogleVisionResponse ocr90; //= loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/4ff6d7edf0d7f06f53cd480a21ccaabaab1ad426fb471898741d8bde05b5f9f84.json");
     GoogleVisionResponse ocr180; //= loadGoogleVisionResponse("src/test/resources/SerializedGoogleVisionResponses/3b391e3b3fd948c2eed56b20a68ef39178736ca9f5d0c8c5ff025a3a348f22093.json");

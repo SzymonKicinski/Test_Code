@@ -10,6 +10,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
+// Maybe instead of Orchestrator called the Services??
+// @Services?
 public class LineOrchestrator {
 
     public List<Line> generateLines(List<EntityAnnotation> annotations) {
@@ -36,7 +39,7 @@ public class LineOrchestrator {
         word.setTopRightCorner(createWordVertice(bounding.getVertices().get(1), minMaxCoordinates));
         word.setLowRightCorner(createWordVertice(bounding.getVertices().get(2), minMaxCoordinates));
         word.setLowLeftCorner(createWordVertice(bounding.getVertices().get(3), minMaxCoordinates));
-        // Może dodać jakąś flage dla OCR vs OCRP?
+        // Maybe add some flag for OCR vs OCRP?
         word.setxMean(calculateMean(word.getTopLeftCorner().getX(), word.getLowRightCorner().getX()));
         word.setyMean(calculateMean(word.getTopLeftCorner().getY(), word.getLowRightCorner().getY()));
         word.setBoundingBox(new BoundingBox(minMaxCoordinates[0], minMaxCoordinates[2], minMaxCoordinates[1], minMaxCoordinates[3]));

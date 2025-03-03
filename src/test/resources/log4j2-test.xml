@@ -7,7 +7,7 @@
         </Root>
     </Loggers>
 
-<!--    // #TODO Tak lepiej? -->
+    <!-- // #TODO Is that better? Adding additional loggers? -->
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n"/>
@@ -16,7 +16,7 @@
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} %-5p %c{1} - %m%n"/>
         </File>
     </Appenders>
-    <!--Wiecej poziomów? debug np -->
+    <!--more example: debug/error  level of logger  -->
     <Loggers>
         <Root level="info">
             <AppenderRef ref="Console"/>

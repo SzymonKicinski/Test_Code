@@ -1,6 +1,7 @@
 package com.dsv.datafactory.file.extraction.processor.models;
 
 import com.dsv.datafactory.model.MetaData;
+
 import lombok.*;
 
 import java.io.Serializable;
@@ -16,8 +17,8 @@ public class ErrorMessage implements Serializable
     @NonNull
     private MetaData topicMessage;
 
-    // Jeśli ta klasa ma być przesyłana przez sieć lub zapisywana do
-    // bazy, warto zamiast Throwable użyć String dla samego komunikatu błędu. -> (może) być problematyczna  serializacja
+    // If this class is to be sent over the network or saved to
+// the database, it is worth using String for the error message itself instead of Throwable. -> serialization (may) be problematic
     @NonNull
     private Throwable exception;
 }

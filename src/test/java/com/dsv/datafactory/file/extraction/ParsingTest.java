@@ -18,6 +18,13 @@ import org.junit.jupiter.api.TestInstance;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+
+// everyhwere given when then IMO
+// Maybe a few small tests instead of one large one?
+// where are asserts?
+// what those tests checking? With what value?
+// create a more specific classes who are checking properly values
+// one for languauge one for blockPage PageBody itp
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ParsingTest {
     String testDir = "src/test/resources/AnnotateImageResponseObjects_v2/";

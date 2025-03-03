@@ -7,9 +7,8 @@ pipelinedata:
 # Kafka
 kafkaClientId: aif-file-extractor
 kafkaGroupId: aif-file-extractor
-# Po co zakomenotwana wartość poniżej? To be deleted - skoro skrypt jest per środowisko to utrzymajmy tak konfiguracje.
+# Why commented value below? To be deleted - since the script is per environment let's keep the configuration like this.
 #kafkaBootstrapServers: hcpquacpkafka1.hcp.dsv.com:19001,hcpquacpkafka2.hcp.dsv.com:19001,hcpquacpkafka3.hcp.dsv.com:19001,hcpquacpkafka4.hcp.dsv.com:19001
-
 kafkaTruststoreFile: confluent.jks
 kafkaSvcAccount: aif-kafka-sa
 kafkaSvcAccountPw: aif-kafka-sa-pw

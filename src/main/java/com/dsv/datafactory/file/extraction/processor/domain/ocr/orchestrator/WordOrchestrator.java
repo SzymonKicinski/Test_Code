@@ -23,7 +23,7 @@ public class WordOrchestrator {
                 .orElse(0);
     }
 
-    // Problem z importem com.dsv.datafactory.model.Page -> modele były w osobnym module??
+    // Problem with importing com.dsv.datafactory.model.Page -> models were in a separate module?? Impossible to compile code
     public void correctPageCoordinates(com.dsv.datafactory.model.Page page) {
         if (page.getRotation() == 90 || page.getRotation() == 270) {
             int temp = page.getHeight();

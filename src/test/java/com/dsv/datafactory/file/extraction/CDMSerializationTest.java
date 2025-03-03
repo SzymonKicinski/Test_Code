@@ -12,16 +12,17 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-// #TODO Profile z Springa?
-// Dokładniejsza obsługa wyjątków?
-// W metodach testPageDeserialization i testWords jest powtarzający się kod do deserializacji
-// Zbędne zmienne - condition
+// #TODO Profile from Spring?
+// More precise exception handling?
+// There is repeated deserialization code in the testPageDeserialization and testWords methods
+// Unnecessary variables - condition
+
 
 public class CDMSerializationTest {
-    // #TODO lepsze nazyw dla plików? Czyatj poniżej przykład
-    //       private static final String TEST_PAGE_PATH = "src/test/resources/CDMFiles/sample_page_data.json";
-    //       private static final String TEST_WORD_PATH_1 = "src/test/resources/CDMFiles/sample_word_data_1.json";
-    //       private static final String TEST_WORD_PATH_2 = "src/test/resources/CDMFiles/sample_word_data_2.json";
+    // #TODO better file names? Read below for an example
+    // private static final String TEST_PAGE_PATH = "src/test/resources/CDMFiles/sample_page_data.json";
+    // private static final String TEST_WORD_PATH_1 = "src/test/resources/CDMFiles/sample_word_data_1.json";
+    // private static final String TEST_WORD_PATH_2 = "src/test/resources/CDMFiles/sample_word_data_2.json";
     String testPagePath = "src/test/resources/CDMFiles/page_test.json";
     String testWordPath1 = "src/test/resources/CDMFiles/word_test1.json";
     String testWordPath2 = "src/test/resources/CDMFiles/word_test2.json";
@@ -41,31 +42,6 @@ public class CDMSerializationTest {
         Assertions.assertEquals(page.getPageNumber(), manualPage.getPageNumber());
     }
 
-    @Test
-    void testWords() throws IOException {
-        Word word1 = objectMapper.readValue(new File(TEST_WORD_PATH_1), Word.class);
-        Word word2 = objectMapper.readValue(new File(TEST_WORD_PATH_2), Word.class);
-
-        // Użycie try-with-resources: Użyto Files.readString(Path.of(...))
-        // do odczytu plików, co automatycznie zarządza zasobami.
-        Word manualWord1 = getSingleWord(Files.readString(Path.of(TEST_WORD_PATH_1)));
-        Word manualWord2 = getSingleWord(Files.readString(Path.of(TEST_WORD_PATH_2)));
-
-        assertWordsEqual(word1, manualWord1);
-        assertWordsEqual(word2, manualWord2);
-    }
-
-    // Metoda pomocnicza assertWordsEqual: Stworzono metodę pomocniczą do
-    // porównywania obiektów Word, aby zredukować powtarzający się kod.
-    // Można posunąć się do wyniesienia tej metody do utilTest package
-    // jeśli metoda była by używana w innych testach -> to discus with the team ?
-    private void assertWordsEqual(Word expected, Word actual) {
-        Assertions.assertEquals(expected.getRotation(), actual.getRotation());
-        Assertions.assertEquals(expected.getWord(), actual.getWord());
-        Assertions.assertEquals(expected.getConfidence(), actual.getConfidence());
-        Assertions.assertEquals(expected.getxMean(), actual.getxMean());
-        Assertions.assertEquals(expected.getyMean(), actual.getyMean());
-    }
 
     private Page loadTestPage(String path) throws IOException {
         JsonNode jsonNode = objectMapper.readTree(new File(path));
@@ -78,6 +54,31 @@ public class CDMSerializationTest {
         page.setLines(getLines(jsonNode.get("lines")));
         page.setLanguage(getLanguage(jsonNode.get("language")));
         return page;
+    }
+    @Test
+    void testWords() throws IOException {
+        Word word1 = objectMapper.readValue(new File(TEST_WORD_PATH_1), Word.class);
+        Word word2 = objectMapper.readValue(new File(TEST_WORD_PATH_2), Word.class);
+
+        // Using try-with-resources: Used Files.readString(Path.of(...))
+        // to read files, which automatically manages resources.
+        Word manualWord1 = getSingleWord(Files.readString(Path.of(TEST_WORD_PATH_1)));
+        Word manualWord2 = getSingleWord(Files.readString(Path.of(TEST_WORD_PATH_2)));
+
+        assertWordsEqual(word1, manualWord1);
+        assertWordsEqual(word2, manualWord2);
+    }
+
+    // Helper method assertWordsEqual: Created a helper method to
+// compare Word objects to reduce duplicate code.
+// You could go as far as to move this method to the utilTest package
+// if the method would be used in other tests -> to discus with the team ?
+    private void assertWordsEqual(Word expected, Word actual) {
+        Assertions.assertEquals(expected.getRotation(), actual.getRotation());
+        Assertions.assertEquals(expected.getWord(), actual.getWord());
+        Assertions.assertEquals(expected.getConfidence(), actual.getConfidence());
+        Assertions.assertEquals(expected.getxMean(), actual.getxMean());
+        Assertions.assertEquals(expected.getyMean(), actual.getyMean());
     }
 
     private List<Language> getLanguage(JsonNode pageNode) {

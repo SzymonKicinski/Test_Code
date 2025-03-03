@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
-// Spring adnotacja
-// Może jakas aplication.properties przechowująca stałe np. endpointy??
+// Spring annotation
+// Maybe some application.properties storing constants e.g. endpoints??
 public class DocumentToDisk {
 
     private static final String FILE_EXTENSION = ".json";
@@ -28,8 +28,7 @@ public class DocumentToDisk {
         if (checkIfExists(pathDocument)) writeToJson(key, res, pathDocument);
     }
 
-    // mkdir() utworzy katalog tylko jeśli katalog nadrzędny już istnieje.
-    // Jeśli shipmentId dodaje nowy podfolder, operacja może się nie powieść.
+    // mkdir() will only create a directory if the parent directory already exists. // If shipmentId adds a new subfolder, the operation may fail.
     private boolean checkIfExists(String pathShipmentIdFolder) {
         File file = new File(pathShipmentIdFolder);
         if (!file.exists() && !file.mkdirs()) {

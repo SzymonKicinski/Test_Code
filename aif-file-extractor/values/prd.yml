@@ -14,9 +14,8 @@ kafkaClientId: aif-file-extractor
 kafkaGroupId: aif-file-extractor
 
 kafkaBootstrapServers: pkc-lq8gm.westeurope.azure.confluent.cloud:9092
-# Po co zakomenotwana wartość poniżej? To be deleted - skoro skrypt jest per środowisko to utrzymajmy tak konfiguracje.
+# Why commented value below? To be deleted - since the script is per environment let's keep the configuration like this.
 #kafkaBootstrapServers: hcpprdcpkafka1.hcp.dsv.com:19001,hcpprdcpkafka2.hcp.dsv.com:19001,hcpprdcpkafka3.hcp.dsv.com:19001,hcpprdcpkafka4.hcp.dsv.com:19001
-
 # Security - kafka
 kafkaTruststoreFile: confluent.jks
 enableKafkaSSL: false #TODO maybe changing the values from "false" to native false in yaml file?
@@ -32,7 +31,7 @@ claimName: customs-shared-data-pvc
 
 goodnessOfFit: ".999"
 startingClasses: "5"
-runGVP: "false"
+runGVP: "false" #TODO maybe changing the values from "true" to native false in yaml file?
 googleSecretName: google-vision-secret
 googleVisionPath: /credentials/
 googleVisionFilePath: /credentials/google-vision-cred.json

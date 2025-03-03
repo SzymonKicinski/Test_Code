@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+// given when then??
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class SaveAnnotateImageResponseToDiskTest {
     private GoogleOcrP refac;
@@ -40,12 +40,14 @@ public class SaveAnnotateImageResponseToDiskTest {
     void processFilesAndSaveToDisk() throws IOException {
         File directory = new File(imageDir);
         File[] files = directory.listFiles();
+        // code in ENG soe the messages in ENG!
         assertNotNull(files, "Katalog obrazów jest pusty lub nie istnieje");
 
         List<String> pathImages = List.of(files).stream()
                 .map(File::getAbsolutePath)
                 .collect(Collectors.toList());
 
+        // code in ENG soe the messages in ENG!
         assertFalse(pathImages.isEmpty(), "Brak plików do przetworzenia");
 
         List<Image> images = refac.generateImages(pathImages);
@@ -54,6 +56,7 @@ public class SaveAnnotateImageResponseToDiskTest {
         );
 
         List<AnnotateImageResponse> responses = refac.extractFullDocumentResponse(requests);
+        // code in ENG soe the messages in ENG!
         assertEquals(pathImages.size(), responses.size(), "Nie wszystkie obrazy zostały przetworzone poprawnie");
 
         for (int i = 0; i < pathImages.size(); i++) {
@@ -65,9 +68,10 @@ public class SaveAnnotateImageResponseToDiskTest {
 
                 objectOutputStream.writeObject(responses.get(i));
             } catch (IOException e) {
+                // code in ENG soe the messages in ENG!
                 throw new RuntimeException("Błąd zapisu pliku: " + dst, e);
             }
-
+            // code in ENG soe the messages in ENG!
             assertTrue(new File(dst).exists(), "Plik nie został poprawnie zapisany: " + dst);
         }
     }

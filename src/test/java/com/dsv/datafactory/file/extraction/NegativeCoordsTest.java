@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class NegativeCoordsTest {
     LineOrchestrator lineOrchestrator;
+    // private static string??
     GoogleVisionResponse ocr = loadGoogleVisionResponseFromDisk("src/test/resources/images/negativeCoords/negativeCoordsExample.json");
 
     @BeforeAll

@@ -20,13 +20,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-// Dodanie springa
-// Dodanie try-resources-catch
-// Dodanie Optional
-// Zastanowienie się czy podejście pisania Orchestrator do COR'ów jest dobrą myślą?
-// Jeśli Orchestrator były by wykorzystywane tylko przez OCR to ograniczyć do nich dostęp innych klas do nich?
-// Może użycie Lista zamiast ArrayList? -> Większa elastyczność w przyszłości
-// Zastosowanie streamów
+// Add spring annotations
+// Add try-resources-catch
+// Add Optional
+// Consider whether the approach of writing an Orchestrator for CORs is a good idea?
+// If Orchestrators were only used by OCR, then limit other classes from accessing them?
+// Maybe use List instead of ArrayList? -> More flexibility in the future
+// Use streams where possible
 public class GoogleOcr implements ExtractPageInterface {
 
     private final static ECSLogger logger = ECSLoggerProvider.getLogger(GoogleOcrRefactor.GoogleOcr.class.getName());

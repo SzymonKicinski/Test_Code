@@ -36,10 +36,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-// assert???? brak w testach
+// assert????where they are?
 // given-when-the
-// no usages zmienne
-
+// no usages variables
+// using mock to test the integration test with rest api
 @Disabled
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class LineExtractionTest {
@@ -50,7 +50,7 @@ public class LineExtractionTest {
     String goodnessOfFit = "0.999";
     String test_folder = "H:\\training_data_google\\pipelineTest\\";
 
-    // lepsza nazwa testu?
+    // better name of test which will be telling what is testing
     @Test
     void testLineExtraction() throws IOException {
 
@@ -115,9 +115,9 @@ public class LineExtractionTest {
                         BoundingPoly bounding = textPlusCoordinate.getBoundingPoly();
 
                         Vertex topLeft = bounding.getVertices(0);
-//                            Vertex topRight = bounding.getVertices(1); // ?? Możę kolejny test?
+// Vertex topRight = bounding.getVertices(1); // ?? Can I take another test?
                         Vertex lowRight = bounding.getVertices(2);
-//                            Vertex lowLeft = bounding.getVertices(3); // ? Może kolejny test do tego?
+// Vertex lowLeft = bounding.getVertices(3); // ? Maybe another test for this?
 
                         com.dsv.datafactory.model.Word word = new com.dsv.datafactory.model.Word();
                         word.setWord(description);
@@ -159,7 +159,7 @@ public class LineExtractionTest {
         mapper.writeValue(new File(Paths.get(basePath.toString(), document.getKey() + ".json").toString()), document);
         String jsonString = mapper.writeValueAsString(document);
         System.out.println(jsonString);
-        // assert????
+        // asserts????
     }
 
     public void generateInputFromDocument(Document document) {
@@ -205,9 +205,12 @@ public class LineExtractionTest {
         }
     }
 
+    // publioc / private / protected
+    // we should not implement a new one but use one from the actualy using code? -> To be checked
     String submitRequest(String jsonRequest) throws IOException {
 
         CloseableHttpClient httpClient = HttpClients.custom().build();
+        // static string ?
         HttpPost post = new HttpPost("http://localhost:8892/jenks/clustering");
         StringBody json = new StringBody(jsonRequest, ContentType.APPLICATION_JSON);
 

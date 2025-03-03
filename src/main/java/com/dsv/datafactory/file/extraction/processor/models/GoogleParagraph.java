@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 @Data
-// Albo Same Setter / Getter ?
+// Or only @Setter / @Getter ?
+// @No/AllArgsConstructor??
 public class GoogleParagraph {
     private TextProperty property;
     private BoundingPoly boundingBox;

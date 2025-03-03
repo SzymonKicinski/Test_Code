@@ -32,14 +32,16 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 
-// przeniesiono metody do klasy Measure
-// Jeśli nie używamy plików z resourceów to warto je usunąć
-//      private Path mid = Paths.get("src","test","resources","performance","mid/");
-//      private Path small = Paths.get("src","test","resources","performance","small/");
-// Przydało by się w testach coś mierzyć jakieś wartości, które powiedzą czy testy
-// wydajnościowe przechodzi aplikacja
-// ++ jeśli tylko w testach używamy bulkGeneratePngRequest to może
-// warto to wynieść do testów,a nie trzymać w głównym kodzie
+// methods moved to Measure class
+// If we don't use files from resources, it's worth removing them
+// private Path mid = Paths.get("src","test","resources","performance","mid/");
+// private Path small = Paths.get("src","test","resources","performance","small/");
+// It would be useful to measure something in tests, some values ​​that would tell us whether the application
+// passes performance tests
+// ++ if we only use bulkGeneratePngRequest in tests, it might be
+// worth moving it to tests, and not keeping it in the main code
+// Use MOCKITO and where are asserts?
+// if some code is duplicate create a util test package where would be place for those methods
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @Disabled
 public class PerformanceTests {

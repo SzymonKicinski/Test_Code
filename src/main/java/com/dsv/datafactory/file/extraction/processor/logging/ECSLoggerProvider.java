@@ -5,9 +5,9 @@ import lombok.Setter;
 
 import static com.dsv.datafactory.file.extraction.processor.util.ConfigurationLoader.getOrDefault;
 
-// Wyniesienie stały do application.prooperties do jakiś resourcow 5389 i aifactory
-// Dodanie @Setter'a z Lombok'a
-// Użycie jakiegoś style linta - tak by pilonował styylu w kodzie - choćby wbudowanego w IDEA
+// Elevate constant to application.prooperties to some resources 5389 and aifactory
+// Add @Setter from Lombok
+// Use some style lint - to control style in code - even built into IDEA
 @Setter
 public class ECSLoggerProvider {
     public static final String LOG_APP_NAME_SDD_ENV_VAR = "LOG_APP_NAME_SDD";

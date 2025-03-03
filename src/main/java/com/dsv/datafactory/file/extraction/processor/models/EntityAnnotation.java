@@ -7,15 +7,15 @@ import lombok.*;
 @AllArgsConstructor
 public class EntityAnnotation {
 
-    // Może warto dodać Optional do zmiennych?
-    // private Optional<String> locale = Optional.empty();
-    // dużo boiler code'u ale mamy zabezpieczenie przed null'ami?
+    // Maybe it's worth adding Optional to variables?
+// private Optional<String> locale = Optional.empty();
+// a lot of boiler code but we have protection against nulls?
     private String locale;
     private String description;
     private double confidence;
     private BoundingPoly boundingPoly;
 
-    // Rozważyć czy warto to dodać oraz jaki zakres???
+    // Consider whether it's worth adding and what scope???
     public void setConfidence(double confidence) {
         if (confidence < 0.0 || confidence > 1.0) {
             throw new IllegalArgumentException("Confidence must be between 0.0 and 1.0");

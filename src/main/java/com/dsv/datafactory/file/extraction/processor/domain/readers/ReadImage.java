@@ -8,13 +8,13 @@ import javax.inject.Inject;
 
 import java.util.ArrayList;
 
-//Adnotacje springowe?
-// Testy: Kod jest w miarę testowalny, ale jeśli googleOcrP.generateDocument() zwraca null,
-// lineExtractor.generateInputFromDocument(document) może rzucić NullPointerException.
-// Warto dodać zabezpieczenie przed tym
+// Spring annotations?
+// Tests: The code is fairly testable, but if googleOcrP.generateDocument() returns null,
+// lineExtractor.generateInputFromDocument(document) may throw a NullPointerException.
+// It's worth adding a safeguard against this
 public class ReadImage {
 
-    // Dodanie final
+    // Adding final
     private final GoogleOcrP googleOcrP;
     private final ExtractLines lineExtractor;
 
@@ -24,20 +24,20 @@ public class ReadImage {
         this.lineExtractor = extractLines;
     }
 
-    // Może użyć List -> Kod bardziej elastyczny?
-    // Lepsza obsługa wyjątku -> throws OcrProcessingException, ExtractionException - customowe exception
+    // Maybe use List -> More flexible code?
+    // Better exception handling -> throws OcrProcessingException, ExtractionException - custom exception
     public Document extract(ArrayList<String> listOfPathImgs, String key) throws Exception {
         try {
             Document document = googleOcrP.generateDocument(listOfPathImgs, key);
-            // Obsługa document == null ? Trój-argumentowy operator logiczny
+// Handling document == null ? Three-argument logical operator
             lineExtractor.generateInputFromDocument(document);
-            // Dodać obsłgę Optionalli?
-            // return Optional.of(document);
+// Add Optional support?
+// return Optional.of(document);
             return document;
         } catch (Exception e) {
-            // Obłsuga wyjątku -> OcrProcessingException, ExtractionException
-            // Dodać obsłgę Optionalli?
-            //  return Optional.empty();
+// Exception handling -> OcrProcessingException, ExtractionException
+// Add Optional support?
+// return Optional.empty();
             return null;
         }
 

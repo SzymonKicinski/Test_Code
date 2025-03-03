@@ -22,21 +22,19 @@ import java.util.Properties;
 
 
 // #TODO
-// Refaktoryzacja kodu konfiguracyjnego: wyodrębnić do osobnych metod
-// Użycie stałych
-// Zastosowanie wzorca Builder
-// Zastosowanie Enum dla protokołów: Zamiast używać stringów do określenia protokołów.
-// Walidacja konfiguracji
+// Refactor configuration code: extract to separate methods
+// Use constants
+// Use Builder pattern
+// Use Enum for protocols: Instead of using strings to define protocols.
+// Validate configuration
 
-
-// #TODO Rozbicie metod tak by
-//  	Configuracja i Properties dla Consumer i Producera były osobne - funkcje (moze nawet w osobnych klasach)
-// #TODO rozważyłbym użycie Springa do tego
-//  	 @EnableKafka
-//			@Configuration
-//			@RequiredArgsConstructor
-//			@FieldDefaults(level = PRIVATE, makeFinal = true)
-
+// #TODO Split methods so that
+// Configuration and Properties for Consumer and Producer are separate - functions (maybe even in separate classes)
+// #TODO I would consider using Spring for this
+// @EnableKafka
+// @Configuration
+// @RequiredArgsConstructor
+// @FieldDefaults(level = PRIVATE, makeFinal = true)
 public class StreamModule implements Module {
 
 	private static final String KAFKA_PROCESSING_GUARANTEE = "KAFKA_PROCESSING_GUARANTEE";
@@ -98,7 +96,7 @@ public class StreamModule implements Module {
 				ConfigurationLoader.getOrDefault("KAFKA_RBAC_USER", "", true),
 				ConfigurationLoader.getOrDefault("KAFKA_RBAC_PW", "", true)));
 
-		// Wywołanie metody configureSSL z odpowiednimi parametrami
+// Calling the configureSSL method with the appropriate parameters
 		configureSSL(props, config);
 	}
 

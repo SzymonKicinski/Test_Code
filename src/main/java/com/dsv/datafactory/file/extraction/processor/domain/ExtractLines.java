@@ -38,11 +38,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 // @Restcontroller
-// Ogólnie spring
-// Wywalenie nieużywanego kodu + zbędnych komentarzy - kod sam mamy być komentarzem
-// static do loggera
+// Spring in general
+// Remove unused code + unnecessary comments - the code itself should be a comment
+// static to logger
 // try-resources-catch
-// dodano obsługę null -> pustych obiektów
+// added support for null -> empty objects
 //
 public class ExtractLines {
     private final static ECSLogger logger = ECSLoggerProvider.getLogger(ExtractLines.class.getName());

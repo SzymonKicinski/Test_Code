@@ -4,26 +4,25 @@ import com.google.cloud.vision.v1.Feature;
 import lombok.Getter;
 import lombok.Setter;
 
-// #TODO Przeniesienie klasy Config do bardziej odpowiedniego pakietu może poprawić organizację projektu,
-//  zwiększyć jego przejrzystość i ułatwić zarządzanie konfiguracją. Warto również rozważyć, czy klasa
-//  Config powinna być bardziej modularna, na przykład poprzez podział na mniejsze klasy konfiguracyjne,
-//  jeśli ma wiele różnych odpowiedzialności.
-// Pakiet com.dsv.datafactory.file.extraction.processor.config: Możesz utworzyć nowy podpakiet config w processor,
-// aby umieścić tam klasę Config. To wyraźnie wskazuje, że klasa ta jest odpowiedzialna za konfigurację.
+// #TODO Moving the Config class to a more appropriate package can improve the organization of the project,
+// make it clearer and easier to manage configuration. It is also worth considering whether the
+// Config class should be more modular, for example by splitting it into smaller configuration classes,
+// if it has many different responsibilities.
+// Package com.dsv.datafactory.file.extraction.processor.config: You can create a new subpackage config in processor,
+// to put the Config class there. This clearly indicates that this class is responsible for configuration.
 //
-// Pakiet com.dsv.datafactory.file.extraction.processor.common: Jeśli klasa Config jest używana w różnych
-// kontekstach w całym projekcie, możesz rozważyć utworzenie pakietu common, który będzie zawierał klasy wspólne dla różnych komponentów.
-// Zalety przeniesienia klasy Config
-//Przejrzystość: Umieszczenie klasy Config w dedykowanym pakiecie ułatwia zrozumienie struktury projektu.
-// Inni programiści będą mogli łatwo znaleźć klasę konfiguracyjną, co zwiększa czytelność kodu.
+// Package com.dsv.datafactory.file.extraction.processor.common: If the Config class is used in different
+// contexts throughout the project, you may want to consider creating a common package that contains classes that are common to different components.
+// Advantages of moving the Config class
+// Clarity: Putting the Config class in a dedicated package makes it easier to understand the structure of the project. // Other developers will be able to easily find the Config class, which makes the code more readable.
 //
-// Modularność: Jeśli klasa Config jest używana w różnych częściach projektu, umieszczenie jej w bardziej
-// centralnym miejscu ułatwia zarządzanie i modyfikację konfiguracji bez konieczności przeszukiwania wielu pakietów.
+// Modularity: If the Config class is used in different parts of the project, placing it in a more
+// central location makes it easier to manage and modify the configuration without having to search through multiple packages.
 //
-//Testowanie: Klasa konfiguracyjna może być łatwiej testowana, jeśli jest umieszczona w odpowiednim pakiecie.
-// Możesz również rozważyć dodanie testów jednostkowych dla tej klasy, aby upewnić się, że wszystkie
-// właściwości są poprawnie ustawione.
-// Może warto dodać adnotacje Data/Setter + getter i pola prywatne?
+//Testing: The Config class can be more easily tested if it is placed in the right package.
+// You may also want to consider adding unit tests for the class to make sure that all
+// properties are set correctly.
+// Maybe add Data/Setter + getter annotations and private fields?
 
 @Getter
 @Setter

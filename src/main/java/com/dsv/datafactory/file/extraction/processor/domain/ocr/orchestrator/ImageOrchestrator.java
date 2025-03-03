@@ -22,8 +22,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 
-// Stworzyć klasę która będzie odpowaidać za redudantny kod
-// Wynieść co jest możliwe to klas odpowiedzialnych za kod
+// Create a class that will be responsible for redundant code
+// Extract what is possible to classes responsible for code
 public class ImageOrchestrator {
 
     private final static ECSLogger logger = ECSLoggerProvider.getLogger(GoogleOcr.class.getName());
@@ -38,7 +38,7 @@ public class ImageOrchestrator {
     }
 
 
-    // KISS, YAGNI! -> To be deleted! - używane tylko w testach więc w testach powinno to znajdować się
+    //// KISS, YAGNI! -> To be deleted! - used only in tests so this should be in tests
     public List<AnnotateImageRequest> bulkGeneratePngRequest(List<Image> images, Feature feature){
         return images.parallelStream().flatMap(x-> generatePngRequest(x,feature).stream()).collect(Collectors.toList());
     }

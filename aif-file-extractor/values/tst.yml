@@ -14,27 +14,26 @@ kafkaClientId: aif-file-extractor
 kafkaGroupId: aif-file-extractor
 
 kafkaBootstrapServers: pkc-lq8gm.westeurope.azure.confluent.cloud:9092
-# Po co zakomenotwana wartość poniżej? To be deleted - skoro skrypt jest per środowisko to utrzymajmy tak konfiguracje.
+# Why commented value below? To be deleted - since the script is per environment let's keep the configuration like this.
 #kafkaBootstrapServers: hcptstcpkafka1.hcp.dsv.com:19001,hcptstcpkafka2.hcp.dsv.com:19001,hcptstcpkafka3.hcp.dsv.com:19001,hcptstcpkafka4.hcp.dsv.com:19001
 ## KAFKA
-enableKafkaSSL: "false" # Bez cudzysłowów?
+enableKafkaSSL: "false" # No quotes?
 imageExtractionMetadataTopic: aif.customs.fct.extracted-image
 extractedDocumentsTopic: aif.customs.fct.extracted-documents
-enableKafkaRBAC: "false" # Bez cudzysłowów?
-enableKafkaCloud: "true" # Bez cudzysłowów?
+enableKafkaRBAC: "false" # No quotes?
+enableKafkaCloud: "true" # No quotes?
 kafkaSecretName: confluent-kafka-secret
 kafkaTruststorePath: /security
 kafkaTruststoreFile: confluent.jks
 kafkaSvcAccount: aif-kafka-sa
 kafkaSvcAccountPw: aif-kafka-sa-pw
 kafkaStorePwKey: confluent_storepass
-claimName: customs-shared-data-pvc # Czy w PersistentVolumeClaim faktycznie istnieje w namespace customs-tst, żeby uniknąć błędów.
-
+claimName: customs-shared-data-pvc # Whether in PersistentVolumeClaim it actually exists in namespace customs-tst, to avoid errors.
 
 ## Application configs
-goodnessOfFit: ".999" # Bez cudzysłowów?
-startingClasses: "5" # Bez cudzysłowów?
-runGVP: "false" # Bez cudzysłowów?
+goodnessOfFit: ".999" #TODO maybe changing the values from ".999" to native .999 in yaml file? to be checked if possible
+startingClasses: "5" #TODO maybe changing the values from "5" to native 5 in yaml file?
+runGVP: "false" #TODO maybe changing the values from "false" to native false in yaml file?
 
 
 ## APIs

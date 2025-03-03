@@ -12,9 +12,11 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-
+// given when the kiss
+// mockito
 @Disabled
 public class SaveGoogleVisionResponseToDisk {
     private final GoogleOcr googleOcr = new GoogleOcr();
@@ -25,6 +27,7 @@ public class SaveGoogleVisionResponseToDisk {
     @Test
     void processAnnotateImageResponseAndSaveToDisk() {
         File[] files = new File(airDir).listFiles();
+        // code in ENG soe the messages in ENG!
         assertNotNull(files, "Pliki w katalogu " + airDir + " nie istnieją lub nie można ich odczytać");
 
         for (File image : files) {
@@ -32,14 +35,18 @@ public class SaveGoogleVisionResponseToDisk {
                 String imagePath = image.getAbsolutePath();
                 String dst = dstDir + image.getName().replace(".object", ".json");
                 AnnotateImageResponse response = loadAnnotateImageResponseFromDisk(imagePath);
+                // code in ENG soe the messages in ENG!
                 assertNotNull(response, "Błąd: response jest null dla " + imagePath);
 
                 GoogleVisionResponse parsed = new OcrParser(response).parse();
+                // code in ENG soe the messages in ENG!
                 assertNotNull(parsed, "Błąd: parsed jest null dla " + imagePath);
 
                 saveDocument(parsed, dst);
+                // code in ENG soe the messages in ENG!
                 assertTrue(new File(dst).exists(), "Plik wynikowy nie został utworzony: " + dst);
             } catch (Exception e) {
+                // code in ENG soe the messages in ENG!
                 throw new RuntimeException("Błąd podczas przetwarzania pliku: " + image.getName(), e);
             }
         }
@@ -48,22 +55,25 @@ public class SaveGoogleVisionResponseToDisk {
     @Test
     void processImagesAndSaveToDisk() {
         File[] files = new File(imageDir).listFiles();
-        assertNotNull(files, "Pliki w katalogu " + imageDir + " nie istnieją lub nie można ich odczytać");
+        assertNotNull(files, "Pliki w katalogu " + imageDir + " nie istnieją lub nie można ich odczytać");             // code in ENG soe the messages in ENG!
+
 
         for (File image : files) {
             try {
                 String imagePath = image.getAbsolutePath();
                 String dst = dstDir + image.getName().replace(".png", ".json");
                 AnnotateImageResponse response = googleOcr.generateResponse(imagePath);
-                assertNotNull(response, "Błąd: response jest null dla " + imagePath);
+                assertNotNull(response, "Błąd: response jest null dla " + imagePath);             // code in ENG soe the messages in ENG!
 
                 GoogleVisionResponse parsed = new OcrParser(response).parse();
-                assertNotNull(parsed, "Błąd: parsed jest null dla " + imagePath);
+                assertNotNull(parsed, "Błąd: parsed jest null dla " + imagePath);             // code in ENG soe the messages in ENG!
 
                 saveDocument(parsed, dst);
-                assertTrue(new File(dst).exists(), "Plik wynikowy nie został utworzony: " + dst);
+                assertTrue(new File(dst).exists(), "Plik wynikowy nie został utworzony: " + dst);             // code in ENG soe the messages in ENG!
+
             } catch (Exception e) {
-                throw new RuntimeException("Błąd podczas przetwarzania pliku: " + image.getName(), e);
+                throw new RuntimeException("Błąd podczas przetwarzania pliku: " + image.getName(), e);             // code in ENG soe the messages in ENG!
+
             }
         }
     }
@@ -72,6 +82,7 @@ public class SaveGoogleVisionResponseToDisk {
         try {
             return new ObjectMapper().writeValueAsString(doc);
         } catch (JsonProcessingException e) {
+            // code in ENG soe the messages in ENG!
             throw new RuntimeException("Błąd podczas serializacji dokumentu", e);
         }
     }
@@ -82,7 +93,7 @@ public class SaveGoogleVisionResponseToDisk {
             try (FileOutputStream outputStream = new FileOutputStream(dst)) {
                 outputStream.write(serialized.getBytes(StandardCharsets.UTF_8));
             } catch (IOException e) {
-                throw new RuntimeException("Błąd zapisu dokumentu do pliku: " + dst, e);
+                throw new RuntimeException("Błąd zapisu dokumentu do pliku: " + dst, e);// code in ENG soe the messages in ENG!
             }
         }
     }
@@ -92,7 +103,7 @@ public class SaveGoogleVisionResponseToDisk {
              ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream)) {
             return (AnnotateImageResponse) objectInputStream.readObject();
         } catch (Exception e) {
-            throw new RuntimeException("Błąd podczas wczytywania obiektu AnnotateImageResponse z: " + objPath, e);
+            throw new RuntimeException("Błąd podczas wczytywania obiektu AnnotateImageResponse z: " + objPath, e);// code in ENG soe the messages in ENG!
         }
     }
 
@@ -101,7 +112,7 @@ public class SaveGoogleVisionResponseToDisk {
             String sResponse = IOUtils.toString(fileInputStream, StandardCharsets.UTF_8);
             return new ObjectMapper().readValue(sResponse, GoogleVisionResponse.class);
         } catch (Exception e) {
-            throw new RuntimeException("Błąd podczas wczytywania obiektu GoogleVisionResponse z: " + path, e);
+            throw new RuntimeException("Błąd podczas wczytywania obiektu GoogleVisionResponse z: " + path, e);// code in ENG soe the messages in ENG!
         }
     }
 }

@@ -12,19 +12,20 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-// Dodanie springa
-// Dodanie try-resources-catch
-// Dodanie Optional
-// Zastanowienie się czy podejście pisania Orchestrator do COR'ów jest dobrą myślą?
-// Jeśli Orchestrator były by wykorzystywane tylko przez OCR to ograniczyć do nich dostęp innych klas do nich?
-// Może użycie Lista zamiast ArrayList? -> Większa elastyczność w przyszłości
-// Zastosowanie streamów
-// Wydorębienie parserów do innej klasy -> Możliwa przyszłościowa rozbudowa parserów o inne
-// Może wynieść klasę pietro wyżej do innego package by było wiadomo, jakie jest zadanie klasy
+// Adding spring
+// Adding try-resources-catch
+// Adding Optional
+// Considering whether the approach of writing an Orchestrator for CORs is a good idea?
+// If Orchestrators were only used by OCR, then limit other classes from accessing them?
+// Maybe using List instead of ArrayList? -> More flexibility in the future
+// Using streams
+// Extracting parsers to another class -> Possible future expansion of parsers with others
+// Maybe elevate the class one floor higher to another package so that it is clear what the purpose of the class is
+// to prevent null values in parameters in method we shoudl add some checking of values to not get a null / nullPointerException
 public class OcrParser {
     private final AnnotateImageResponse raw;
 
-    // @Autowired
+    // @Autowired maybe to be added?
     public OcrParser(AnnotateImageResponse response) {
         this.raw = response;
     }
@@ -72,8 +73,9 @@ public class OcrParser {
     }
 
     public BoundingPoly parseBoundingPoly(com.google.cloud.vision.v1.BoundingPoly rawBoundingPoly) {
-        BoundingPoly parsedPoly = new BoundingPoly(); // Potencjalny NullPointerException -
-                                                     // Brak konstruktora w modelu - używamy domyślnego z Javy
+
+        BoundingPoly parsedPoly = new BoundingPoly(); // Potential NullPointerException -
+        // No constructor in the model - we use the default one from Java
         ArrayList<Vertices> vertices = rawBoundingPoly.getVerticesList().stream()
                 .map(rawVertex -> new Vertices(rawVertex.getX(), rawVertex.getY()))
                 .collect(Collectors.toCollection(ArrayList::new));

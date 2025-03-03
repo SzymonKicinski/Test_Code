@@ -19,16 +19,16 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-// Dodanie Optionali
-// Dodanie try-resources-catch
-// Dodanie streamów
-// + Dodatkowo zrobiłbym wydzielenie wspólnej funkcjonalności do innej klasy.
-// Dużo redudancji  kodu
-// Np. bulkGeneratePngRequest, processImg, generatePngRequest
-// Osobne wydzielenie metod od słów i od png do innyg klas
-// Zastanwoić się czy nie lepiej było by zrobić interface?
+// Adding Optionals
+// Adding try-resources-catch
+// Adding streams
+// + Additionally, I would separate the common functionality to another class.
+// A lot of code redundancy
+// E.g. bulkGeneratePngRequest, processImg, generatePngRequest
+// Separate methods from words and from png to other classes
+// Wonder if it wouldn't be better to make an interface?
 // @No/AllArgConstructor
-// Dodać adnotacje springowe (Autowired itp).
+// Add Spring annotations (Autowired etc.).
 public class GoogleOcrP implements ExtractPageInterface {
     private static final ECSLogger logger = ECSLoggerProvider.getLogger(GoogleOcr.class.getName());
     private final Feature feature = Feature.newBuilder().setType(Feature.Type.DOCUMENT_TEXT_DETECTION).build();

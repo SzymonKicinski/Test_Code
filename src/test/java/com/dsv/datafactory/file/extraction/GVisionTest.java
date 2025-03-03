@@ -48,11 +48,11 @@ public class GVisionTest {
         for (int i = 0; i < directoryListing.length; i++) {
 
             File file = directoryListing[i];
-            // Po co ten if?? O.o
+            // For what this if??
             if (file.getName().toLowerCase().endsWith(".pdf")) {
                 document.setKey(file.getName());
             }
-            // Może osobne testy dla pliku pdf i png?
+            // Maybe separate tests for pdf and png files?
             if (file.getName().toLowerCase().endsWith(".png")) {
                 System.out.println(file.getName());
                 String imgName = file.getName();
@@ -106,9 +106,9 @@ public class GVisionTest {
                             BoundingPoly bounding = textPlusCoordinate.getBoundingPoly();
 
                             Vertex topLeft = bounding.getVertices(0);
-//                            Vertex topRight = bounding.getVertices(1); // Osobny test na te parametry
+// Vertex topRight = bounding.getVertices(1); // Separate test for these parameters
                             Vertex lowRight = bounding.getVertices(2);
-//                            Vertex lowLeft = bounding.getVertices(3); // Osobny test na te parametry
+// Vertex lowLeft = bounding.getVertices(3); // Separate test for these parameters
 
                             com.dsv.datafactory.model.Word word = new com.dsv.datafactory.model.Word();
                             word.setWord(description);
@@ -147,7 +147,7 @@ public class GVisionTest {
         mapper.writeValue(new File(Paths.get(basePath.toString(), document.getKey() + ".json").toString()), document);
         String jsonString = mapper.writeValueAsString(document);
         System.out.println(jsonString);
-        // asserty gdzie?
+        // asserts where?
     }
 
 
@@ -199,6 +199,7 @@ public class GVisionTest {
         mapper.writeValue(new File(Paths.get(basePath.toString(), folder + ".json").toString()), pages);
         String jsonString = mapper.writeValueAsString(pages);
         System.out.println(jsonString);
+        //asserts where?
     }
 
     @Test
@@ -213,7 +214,7 @@ public class GVisionTest {
         for (int i = 0; i < directoryListing.length; i++) {
 
             File file = directoryListing[i];
-            // ???
+            // for what this if -> do we use psd in this test???
             if (file.getName().toLowerCase().endsWith(".pdf")) {
                 document.setKey(file.getName());
             }
@@ -290,7 +291,7 @@ public class GVisionTest {
                         }
 
                         if (visionResponse.hasError()) {
-                            logger.log( Level.SEVERE, "Error in vision API call: " + visionResponse.getError().getMessage());
+                            logger.log(Level.SEVERE, "Error in vision API call: " + visionResponse.getError().getMessage());
                             return;
                         }
 
@@ -307,7 +308,7 @@ public class GVisionTest {
                     return;
                 }
             }
-            // asserty???
+            // asserts???
         }
 
 
@@ -342,7 +343,7 @@ public class GVisionTest {
 
                 try (ImageAnnotatorClient client = ImageAnnotatorClient.create()) {
                     Feature feature = Feature.newBuilder().setType(Feature.Type.DOCUMENT_TEXT_DETECTION).build();
-                    // Czy potrzebuje takie duże bloki tekstu w kodzie? Nawet w testach?
+                    // Do I need such large blocks of text in my code? Even in tests?
                     // Build the request object for that one file. Note: for additional file you have to create
                     // additional `AnnotateFileRequest` objects and store them in a list to be used below.
                     // Since we are sending a file of type `application/pdf`, we can use the `pages` field to
@@ -381,11 +382,11 @@ public class GVisionTest {
         String jsonString = mapper.writeValueAsString(pages);
         System.out.println(jsonString);
         // assert
-        // given when then?
-        // Test Keep it stupid simple - jak tylko to jest możliwe
+// given when then?
+// Test Keep it stupid simple - as much as possible
     }
 
-    // assert ???
+    // asserts where???
     // given when then ??
     @Test
     void testCompareResults() throws IOException, NoSuchAlgorithmException {

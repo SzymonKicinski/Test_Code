@@ -4,20 +4,20 @@ import com.dsv.datafactory.model.Vertices;
 import lombok.Setter;
 
 import java.util.ArrayList;
-// Warto dodać  @Setter/Getter z Lombok'a jeśli chce jawny zapis do każdej ze zmiennej
+// It's worth adding @Setter/Getter from Lombok if you want explicit write to each variable
 @Setter
 public class BoundingPoly {
-    // klasa będzie bardziej elastyczna na przyszłe zmiany implementacji.
-    //private List<Vertices> vertices;
-    //private List<NormalizedVertices> normalizedVertices;
+    // the class will be more flexible for future implementation changes.
+//private List<Vertices> vertices;
+//private List<NormalizedVertices> normalizedVertices;
     private ArrayList<Vertices> vertices;
     private ArrayList<NormalizedVertices> normalizedVertices;
 
-    // Może warto dodać??
-    /*public BoundingPoly() {
-        this.vertices = new ArrayList<>();
-        this.normalizedVertices = new ArrayList<>();
-    }*/
+// Maybe it's worth adding??
+/*public BoundingPoly() {
+this.vertices = new ArrayList<>();
+this.normalizedVertices = new ArrayList<>();
+}*/
 
     public ArrayList<NormalizedVertices> getNormalizedVertices() {
         return normalizedVertices;
@@ -27,10 +27,10 @@ public class BoundingPoly {
         return vertices;
     }
 
-    // Lista błędów w metodzie
-    // Błąd arytmetyczny: int x = vertex.getX()/width ->  dzielenie całkowitoliczbowe -> double
-    // Brak przypisania wyniku: normalized
-    // życie złego typu: Vertices -> może powinniśmy użyć NormalizedVertices
+    // List of errors in the method
+// Arithmetic error: int x = vertex.getX()/width -> integer division -> double
+// No result assignment: normalized
+// bad type life: Vertices -> maybe we should use NormalizedVertices
     public void normalizeVertices(int width, int height) {
         if (vertices == null || vertices.isEmpty() || width == 0 || height == 0) {
             return;
@@ -41,11 +41,11 @@ public class BoundingPoly {
             double y = (double) vertex.getY() / height;
             normalized.add(new NormalizedVertices(x, y));
         }
-        // Czy nie powinniśmy użyć innego typu?
-        // this.normalizedVertices = normalized;
+// Shouldn't we use a different type?
+// this.normalizedVertices = normalized;
     }
 
-    // Warto obsłużyć
+    // Worth serving - nice equals?
     @Override
     public String toString() {
         return "BoundingPoly{" +

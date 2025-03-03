@@ -25,22 +25,21 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-///// path names must used forward "/" when building in linux env
+///// path names must be used forward "/" when building in linux env
 
 @Disabled // Disabled due to missing resource files
-// #TODO  @Disabled wskazuje, że test jest wyłączony z powodu brakujących plików zasobów. To jest dobra praktyka,
-//  aby nie uruchamiać testów, które nie mogą być wykonane. Warto jednak dodać komentarz wyjaśniający, dlaczego test
-//  jest wyłączony, co może pomóc innym programistom w przyszłości. -> A skoro nie ma plików resources to warto zastanowić
-//  się czy ten test ma sens i czy nie warto go usunąć?
+// #TODO @Disabled indicates that the test is disabled due to missing resource files. It is good practice to
+// not run tests that cannot be executed. It is worth adding a comment explaining why the test is disabled, which may help other developers in the future. -> And since there are no resources files, it is worth considering
+// whether this test makes sense and whether it is not worth removing it?
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BuildTest {
     // Tests to run when building jar file- much is taken from UnpackExtractHOCR but with specific examples
     private ExtractContent extractContent;
-    // #TODO Upewnij się, że zasoby testowe (np. pliki PDF) są dostępne w odpowiedniej lokalizacji, aby testy mogły
-    //  być uruchamiane w przyszłości. Może warto dodać mechanizm do sprawdzania, czy pliki istnieją przed ich użyciem.
-    // czy ta ścieżka wgl jest poprawne??
-    private File standard =new File("src/test/resources/build_data/standard/pdf_files");
-    private ArrayList<String> newFormat =  new ArrayList<>(Arrays.asList("sample_outputalice_5_pg0","sample_outputalice_5_pg1","sample_outputalice_5_pg2","sample_outputalice_5_pg3","sample_outputalice_5_pg4"));
+    // #TODO Make sure that test resources (e.g. PDF files) are available in the right location so that tests can
+// be run in the future. Maybe it is worth adding a mechanism to check if files exist before using them.
+// is this wgl path correct??
+    private File standard = new File("src/test/resources/build_data/standard/pdf_files");
+    private ArrayList<String> newFormat = new ArrayList<>(Arrays.asList("sample_outputalice_5_pg0", "sample_outputalice_5_pg1", "sample_outputalice_5_pg2", "sample_outputalice_5_pg3", "sample_outputalice_5_pg4"));
 
     @BeforeAll
     void setup() {
@@ -51,34 +50,34 @@ public class BuildTest {
 
     private Module getTestConfigModule() {
         return new AbstractModule() {
-            @Override protected void configure() {
+            @Override
+            protected void configure() {
                 Config config = new Config();
                 bind(Config.class).toInstance(config);
             }
         };
     }
 
-
     @Test
     void basicExtractionTest() throws IOException {
-        ///Basic test for build, ensure that sample pdfs go through and produce hocr result
-        // #TODO warto dodać obsługę sytuacji, gdy katalog jest pusty lub nie istnieje, aby uniknąć potencjalnych wyjątków.
+///Basic test for build, ensure that sample pdfs go through and produce hocr result
+// #TODO it's worth adding support for when the directory is empty or doesn't exist to avoid potential exceptions.
         File[] files = standard.listFiles();
-        for (File file:files){
+        for (File file : files) {
             MetaData imageExtractionMetadata = new MetaData();
             imageExtractionMetadata.fileName = file.getName();
-            imageExtractionMetadata.sortedImagePaths =newFormat;
+            imageExtractionMetadata.sortedImagePaths = newFormat;
             MetaData extraction = extractContent.execute(imageExtractionMetadata);
-            assertNotNull(extraction);}
+            assertNotNull(extraction);
         }
-
-        // #TODO
-        // Więcej asercji: Można rozważyć dodanie dodatkowych asercji, aby sprawdzić, czy wynik extraction zawiera
-        // oczekiwane dane, a nie tylko, że nie jest null.
-        //Testy parametrów: Można również rozważyć użycie testów parametrów,
-        // aby przetestować różne przypadki użycia z różnymi plikami PDF.
-        // #TODO Given When Then - może warto opisać by test był czytleniejszy???
-        // Podsumowując, test jest dobrze napisany i zorganizowany, ale można go
-        // jeszcze poprawić, dodając więcej asercji, lepszą obsługę błędów oraz dokumentację.
     }
 
+// #TODO
+// More assertions: You could consider adding additional assertions to check if the extraction result contains
+// the expected data, not just that it is not null.
+// Parameter tests: You could also consider using parameter tests,
+// to test different use cases with different PDFs.
+// #TODO Given When Then - maybe describe it to make the test more readable???
+// In summary, the test is well written and organized, but it could be improved
+// by adding more assertions, better error handling, and documentation.
+}

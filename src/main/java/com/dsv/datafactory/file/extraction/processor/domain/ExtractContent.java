@@ -8,9 +8,9 @@ import com.dsv.datafactory.model.MetaData;
 import com.dsv.logger.ECSLogger;
 
 import javax.inject.Inject;
-// Obłsuga wyjątkowów
-// SOLID + Clean Code - zastosować gdzie tylko jest to możliwe!
-// static w loggerach
+// Exception handling
+// SOLID + Clean Code - use wherever possible!
+// static in loggers -> Maybe some class who has predefined start of messages??
 public class ExtractContent {
     private static final ECSLogger logger = ECSLoggerProvider.getLogger(ExtractContent.class.getName());
 
